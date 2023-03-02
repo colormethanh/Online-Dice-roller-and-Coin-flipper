@@ -2,6 +2,11 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import * as THREE from 'three'
 
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import  Stats from 'three/examples/jsm/libs/stats.module';
+
+
+
 function App() {
 
     useEffect(() => {
@@ -31,7 +36,25 @@ function App() {
         spotLight.position.set(0, 64, 32);
         scene.add(spotLight);
 
+        const boxGeometry = new THREE.BoxGeometry(16, 16, 16);
+        const boxMaterial = new THREE.MeshNormalMaterial();
+        const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+        scene.add(boxMesh);
+
+        // Orbit controls
+        const controls = new OrbitControls(camera, renderer.domElement)
+
+        // add FPS stats
+        const stats = Stats();
+        document.body.appendChild(stats.dom);
+
+
         const animate = () => {
+            // boxMesh.rotation.x += 0.01;
+            // boxMesh.rotation.y += 0.01;
+
+            stats.update();
+            controls.update();
             renderer.render(scene, camera);
             window.requestAnimationFrame(animate);
         };
@@ -43,7 +66,7 @@ function App() {
         <div className="App">
             <canvas id="myCanvas" />
         </div>
-    )
+    );
 }
 
 export default App
