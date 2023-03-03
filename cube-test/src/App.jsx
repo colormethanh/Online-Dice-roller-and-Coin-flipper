@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import * as THREE from 'three'
 import ScenenInit from './lib/screenInit';
-import { createDiceGeometry } from './lib/cubeInit';
+import { createDiceMesh } from './lib/cubeInit';
 
 
 
@@ -15,7 +15,7 @@ function App() {
         test.initialize();
 
         test.animate();
-        const dice = createDiceGeometry();
+        const dice = createDiceMesh();
 
         test.scene.add(dice);
     }, []);

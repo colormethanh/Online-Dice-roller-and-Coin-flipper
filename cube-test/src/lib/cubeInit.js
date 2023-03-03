@@ -4,20 +4,13 @@ import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js'
 
 const params = {
     segments: 40,
-    edgeRadius: .07
+    edgeRadius: .09,
+    notchRadius: .12,
+    notchDepth: .1,
 };
 
 
-
-
 export function createDiceGeometry() {
-    // let boxGeometry = new THREE.BoxGeometry(1,1,1, params.segments, params.segments, params.segments);
-    
-    let boxMaterial = new THREE.MeshNormalMaterial();
-    // let boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-
-    // return boxMesh;
-
 
     let boxGeometry = new THREE.BoxGeometry(1,1,1, params.segments, params.segments, params.segments);
     const positionAttr = boxGeometry.attributes.position;
@@ -63,6 +56,51 @@ export function createDiceGeometry() {
             position.z = subCube.z + addition.z;
         }
 
+        // create notches for cube
+        const notchWave = (v) => {
+            v = (1/ params.notchRadius) * v;
+            v = Math.PI * Math.max(-1, Math.min(1 , v));
+            return params.notchDepth * (Math.cos(v) + 1);
+        }
+        const notch = (pos) => notchWave(pos[0]) * notchWave(pos[1]);
+        const offset = .23;
+
+        if(position.y === .5) {
+            // cube face is top face
+            position.y -= notch([position.x, position.z]);
+        } else if (position.x === .5) {
+            // cube face is right right
+            position.x -= notch([position.y + offset, position.z + offset]);
+            position.x -= notch([position.y - offset, position.z - offset]);
+        } else if (position.z === .5) {
+            // cube face is front face
+            position.z -= notch([position.x - offset, position.y - offset]);
+            position.z -= notch([position.x, position.y]);
+            position.z -= notch([position.x + offset, position.y + offset]);
+        } else if (position.z === -.5) {
+            // cube face is back face
+            position.z += notch([position.x + offset, position.y + offset]);
+            position.z += notch([position.x + offset, position.y - offset]);
+            position.z += notch([position.x - offset, position.y + offset]);
+            position.z += notch([position.x - offset, position.y - offset]);
+        } else if (position.x === -.5) {
+            // cube face is left face
+            position.x += notch([position.y + offset, position.z + offset]);
+            position.x += notch([position.y + offset, position.z - offset]);
+            position.x += notch([position.y, position.x]);
+            position.x += notch([position.y - offset, position.z + offset]);
+            position.x += notch([position.y - offset, position.z - offset]);
+        } else if (position.y === -.5) {
+            // cube face is bottom face
+            position.y += notch([position.x + offset, position.z + offset]);
+            position.y += notch([position.x + offset, position.z]);
+            position.y += notch([position.x + offset, position.z - offset]);
+            position.y += notch([position.x - offset, position.z + offset]);
+            position.y += notch([position.x - offset, position.z]);
+            position.y += notch([position.x - offset, position.z - offset]);
+        }
+
+        // setting the old position to the altered positions
         positionAttr.setXYZ(i, position.x, position.y, position.z)
     }
 
@@ -72,8 +110,42 @@ export function createDiceGeometry() {
 
     boxGeometry.computeVertexNormals();
 
+    return boxGeometry;
 
-    const dice = new THREE.Mesh(boxGeometry, boxMaterial)
-    return dice;
+}
 
+function createInnerGeometry() {
+    const baseGeometry = new THREE.PlaneGeometry(1 - 2 * params.edgeRadius, 1 - 2 * params.edgeRadius);
+
+    const offset = .48;
+
+    // merge plane 
+    return BufferGeometryUtils.mergeBufferGeometries([
+        baseGeometry.clone().translate(0,0, offset),
+        baseGeometry.clone().translate(0,0, -offset),
+        baseGeometry.clone().rotateX(.5 * Math.PI).translate(0, -offset, 0),
+        baseGeometry.clone().rotateX(.5 * Math.PI).translate(0, offset, 0),
+        baseGeometry.clone().rotateY(.5 * Math.PI).translate(-offset, 0, 0),
+        baseGeometry.clone().rotateY(.5 * Math.PI).translate(offset, 0, 0)
+    ], false);
+}
+
+export function createDiceMesh() {
+    const boxMaterialOuter = new THREE.MeshStandardMaterial({
+        color: 0xeeeeee,
+    })
+
+    const boxMaterialInner = new THREE.MeshStandardMaterial({
+        color:0x000000,
+        roughness: 0,
+        metalness: 1,
+        side: THREE.DoubleSide
+    })
+
+    const diceMesh = new THREE.Group();
+    const innerMesh = new THREE.Mesh(createInnerGeometry(),boxMaterialInner);
+    const outerMesh = new THREE.Mesh(createDiceGeometry(), boxMaterialOuter);
+    diceMesh.add(innerMesh, outerMesh);
+
+    return diceMesh;
 }
