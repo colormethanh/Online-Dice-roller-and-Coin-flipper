@@ -2,21 +2,22 @@ import { useState, useEffect } from 'react'
 import './App.css'
 import * as THREE from 'three'
 import ScenenInit from './lib/screenInit';
+import { createDiceGeometry } from './lib/cubeInit';
 
 
 
 function App() {
 
     useEffect(() => {
-        const test = new ScenenInit('myCanvas');
-        test.initialize();
-        test.animate();
         
-        const boxGeometry = new THREE.BoxGeometry(16, 16, 16);
-        const boxMaterial = new THREE.MeshNormalMaterial();
-        const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+        const test = new ScenenInit('myCanvas');
+        
+        test.initialize();
 
-        test.scene.add(boxMesh);
+        test.animate();
+        const dice = createDiceGeometry();
+
+        test.scene.add(dice);
     }, []);
 
     return (

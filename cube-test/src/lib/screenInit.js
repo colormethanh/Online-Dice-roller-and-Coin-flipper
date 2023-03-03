@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { DirectionalLight, UnsignedShort4444Type } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 
@@ -35,7 +34,7 @@ export default class ScenenInit {
             this.nearPlane,
             this.farPlane
         );
-        this.camera.position.z = 48;
+        this.camera.position.set(10, 5, 10)
 
         // canvas
         const canvas = document.getElementById(this.canvasId);
@@ -78,8 +77,6 @@ export default class ScenenInit {
         this.stats.update();
         this.controls.update();
     }
-
-    
 
     onWindowResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
