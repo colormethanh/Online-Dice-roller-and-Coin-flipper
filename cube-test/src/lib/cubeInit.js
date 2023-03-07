@@ -1,7 +1,8 @@
 import * as THREE from 'three'; 
+import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
-
+// Visable World
 const params = {
     segments: 40,
     edgeRadius: .09,
@@ -148,4 +149,52 @@ export function createDiceMesh() {
     diceMesh.add(innerMesh, outerMesh);
 
     return diceMesh;
+}
+
+export function createDice(scene, physicsWorld) {
+    const mesh = new createDiceMesh();
+    scene.add(mesh);
+
+    const body = new CANNON.Body({
+        mass: 1,
+        shape: new CANNON.Box(new CANNON.Vec3(.5,.5,.5)),
+        sleepTimeLimit:.1
+    });
+    physicsWorld.addBody(body);
+
+    return {mesh, body}
+}
+
+
+// Physics World
+
+export function initPysics() {
+   let physicsWorld = new CANNON.World({
+    gravity: new CANNON.Vec3(0, -50, 0),
+   })
+   physicsWorld.defaultContactMaterial.restitution = .2;
+
+   return physicsWorld
+}
+
+export function createFloor(scene, physicsWorld) {
+    const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(1000, 1000),
+        new THREE.ShadowMaterial({
+            opacity: .6,
+            transparent: false,
+        })
+    )
+    floor.receiveShadow = true;
+    floor.position.y = -7;
+    floor.quaternion.setFromAxisAngle(new THREE.Vector3(-1, 0, 0), Math.PI * .5);
+    scene.add(floor);
+
+    const floorBody = new CANNON.Body({
+        type: CANNON.Body.STATIC,
+        shape: new CANNON.Plane(),
+    });
+    floorBody.position.copy(floor.position);
+    floorBody.quaternion.copy(floor.quaternion);
+    physicsWorld.addBody(floorBody)
 }

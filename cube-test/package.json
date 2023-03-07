@@ -9,7 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "babel-runtime": "^6.26.0",
     "react": "^18.2.0",
+    "react-dat-gui": "^4.1.1",
     "react-dom": "^18.2.0",
     "three": "^0.150.1"
   },
@@ -17,6 +19,7 @@
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "@vitejs/plugin-react": "^3.1.0",
+    "dat.gui": "^0.7.9",
     "vite": "^4.1.0"
   }
 }
