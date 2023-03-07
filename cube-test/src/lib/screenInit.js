@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
-import { GUI } from 'dat.gui';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { initPysics, createFloor, createDice, createDiceMesh } from './cubeInit';
@@ -39,7 +38,6 @@ export default class scenenInit {
         this.directionalLight = undefined;
         this.topLight = undefined;
 
-        // gui controls
     }
 
     initialize(physicsWorld) {
@@ -89,10 +87,6 @@ export default class scenenInit {
         this.dice.mesh = mesh;
         this.dice.body = body;
         createFloor(this.scene, this.physicsWorld );
-
-        // GUI 
-        this.gui.add(this.throwDice(), 'throwDice');
-
 
         // if window resizes
         window.addEventListener('resize', () => this.onWindowResize(), false);
