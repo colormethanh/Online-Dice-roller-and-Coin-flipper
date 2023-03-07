@@ -20,6 +20,11 @@ function App() {
 
         const gui = new GUI();
 
+        const cameraFolder = gui.addFolder('camera');
+        cameraFolder.add(test.camera.position, 'x', -10, 20).name('Camera X');
+        cameraFolder.add(test.camera.position, 'y', 0, 20).name('Camera Y');
+        cameraFolder.add(test.camera.position, 'z', 0, 20).name('Camera Z');
+
         const customFunctionFolder = gui.addFolder('custom Function');
         customFunctionFolder.open();
         const customParams = {

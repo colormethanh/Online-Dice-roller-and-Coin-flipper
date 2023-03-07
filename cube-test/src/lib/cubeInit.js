@@ -3,19 +3,24 @@ import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 // Visable World
+const cubeSize =  2.5;
+
 const params = {
+    boxSize: cubeSize,
     segments: 40,
-    edgeRadius: .09,
-    notchRadius: .12,
-    notchDepth: .1,
+    edgeRadius: cubeSize * .09,
+    notchRadius: cubeSize * .12,
+    notchDepth: cubeSize * .1,
 };
+
+
 
 
 export function createDiceGeometry() {
 
-    let boxGeometry = new THREE.BoxGeometry(1,1,1, params.segments, params.segments, params.segments);
+    let boxGeometry = new THREE.BoxGeometry(params.boxSize, params.boxSize, params.boxSize, params.segments, params.segments, params.segments);
     const positionAttr = boxGeometry.attributes.position;
-    const subCubeHalfSize = .5 - params.edgeRadius;
+    const subCubeHalfSize = (params.boxSize/2) - params.edgeRadius;
     
     for (let i = 0; i < positionAttr.count; i++) {
         let position = new THREE.Vector3().fromBufferAttribute(positionAttr, i);
@@ -57,41 +62,42 @@ export function createDiceGeometry() {
             position.z = subCube.z + addition.z;
         }
 
-        // create notches for cube
         const notchWave = (v) => {
             v = (1/ params.notchRadius) * v;
             v = Math.PI * Math.max(-1, Math.min(1 , v));
             return params.notchDepth * (Math.cos(v) + 1);
         }
         const notch = (pos) => notchWave(pos[0]) * notchWave(pos[1]);
-        const offset = .23;
+        
+        // const offset = ((Math.abs(params.boxSize - 1) / 1) * 100) * .23;
+        const offset = cubeSize * .23
 
-        if(position.y === .5) {
+        if(position.y === (params.boxSize / 2)) {
             // cube face is top face
             position.y -= notch([position.x, position.z]);
-        } else if (position.x === .5) {
+        } else if (position.x === (params.boxSize / 2)) {
             // cube face is right right
             position.x -= notch([position.y + offset, position.z + offset]);
             position.x -= notch([position.y - offset, position.z - offset]);
-        } else if (position.z === .5) {
+        } else if (position.z === (params.boxSize / 2)) {
             // cube face is front face
             position.z -= notch([position.x - offset, position.y - offset]);
             position.z -= notch([position.x, position.y]);
             position.z -= notch([position.x + offset, position.y + offset]);
-        } else if (position.z === -.5) {
+        } else if (position.z === -(params.boxSize / 2)) {
             // cube face is back face
             position.z += notch([position.x + offset, position.y + offset]);
             position.z += notch([position.x + offset, position.y - offset]);
             position.z += notch([position.x - offset, position.y + offset]);
             position.z += notch([position.x - offset, position.y - offset]);
-        } else if (position.x === -.5) {
+        } else if (position.x === -(params.boxSize / 2)) {
             // cube face is left face
             position.x += notch([position.y + offset, position.z + offset]);
             position.x += notch([position.y + offset, position.z - offset]);
             position.x += notch([position.y, position.x]);
             position.x += notch([position.y - offset, position.z + offset]);
             position.x += notch([position.y - offset, position.z - offset]);
-        } else if (position.y === -.5) {
+        } else if (position.y === -(params.boxSize / 2)) {
             // cube face is bottom face
             position.y += notch([position.x + offset, position.z + offset]);
             position.y += notch([position.x + offset, position.z]);
@@ -116,9 +122,9 @@ export function createDiceGeometry() {
 }
 
 function createInnerGeometry() {
-    const baseGeometry = new THREE.PlaneGeometry(1 - 2 * params.edgeRadius, 1 - 2 * params.edgeRadius);
+    const baseGeometry = new THREE.PlaneGeometry(params.boxSize - 2 * params.edgeRadius, params.boxSize - 2 * params.edgeRadius);
 
-    const offset = .48;
+    const offset = params.boxSize * .48;
 
     // merge plane 
     return BufferGeometryUtils.mergeBufferGeometries([
@@ -146,6 +152,7 @@ export function createDiceMesh() {
     const diceMesh = new THREE.Group();
     const innerMesh = new THREE.Mesh(createInnerGeometry(),boxMaterialInner);
     const outerMesh = new THREE.Mesh(createDiceGeometry(), boxMaterialOuter);
+    outerMesh.castShadow = true;
     diceMesh.add(innerMesh, outerMesh);
 
     return diceMesh;
@@ -157,7 +164,7 @@ export function createDice(scene, physicsWorld) {
 
     const body = new CANNON.Body({
         mass: 1,
-        shape: new CANNON.Box(new CANNON.Vec3(.5,.5,.5)),
+        shape: new CANNON.Box(new CANNON.Vec3(params.boxSize / 2, params.boxSize / 2, params.boxSize / 2)),
         sleepTimeLimit:.1
     });
     physicsWorld.addBody(body);
@@ -172,7 +179,7 @@ export function initPysics() {
    let physicsWorld = new CANNON.World({
     gravity: new CANNON.Vec3(0, -50, 0),
    })
-   physicsWorld.defaultContactMaterial.restitution = .2;
+   physicsWorld.defaultContactMaterial.restitution = .3;
 
    return physicsWorld
 }
@@ -181,7 +188,7 @@ export function createFloor(scene, physicsWorld) {
     const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(1000, 1000),
         new THREE.ShadowMaterial({
-            opacity: .6,
+            opacity: .1,
             transparent: false,
         })
     )

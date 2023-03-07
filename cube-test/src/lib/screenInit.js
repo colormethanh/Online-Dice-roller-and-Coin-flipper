@@ -9,9 +9,9 @@ export default class scenenInit {
         // Core three.js compoenents
         this.scene = undefined;
         this.camera = undefined;
-        this.cameraX = -1;
-        this.cameraY = 3;
-        this.cameraZ = 1;
+        this.cameraX = 0;
+        this.cameraY = 7;
+        this.cameraZ = 20;
         this.renderer = undefined;
 
         this.physicsWorld = undefined;
@@ -49,7 +49,7 @@ export default class scenenInit {
             this.nearPlane,
             this.farPlane
         );
-        this.camera.position.set(this.cameraX, this.cameraY, this.cameraZ).multiplyScalar(7);
+        this.camera.position.set(this.cameraX, this.cameraY, this.cameraZ);
         this.camera.lookAt(this.scene);
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.getElementById(this.canvasId),
@@ -69,11 +69,6 @@ export default class scenenInit {
         this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(this.ambientLight);
 
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        this.directionalLight.castShadow = true;
-        this.directionalLight.position.set(0, 32, 64);
-        this.scene.add(this.directionalLight);
-
         this.topLight = new THREE.PointLight(0xffffff, .5);
         this.topLight.position.set(10, 15, 0);
         this.topLight.castShadow = true;
@@ -81,7 +76,7 @@ export default class scenenInit {
         this.topLight.shadow.mapSize.height = 2048;
         this.topLight.shadow.camera.near = 5;
         this.topLight.shadow.camera.far = 400;
-        // this.scene.add(this.topLight);
+        this.scene.add(this.topLight);
 
         const {mesh, body} = createDice(this.scene, this.physicsWorld);
         this.dice.mesh = mesh;
@@ -108,10 +103,10 @@ export default class scenenInit {
         this.dice.mesh.rotation.set(2* Math.PI * Math.random(), 0, 2 * Math.PI * Math.random());
         this.dice.body.quaternion.copy(this.dice.mesh.quaternion);
 
-        const force = 3 + 5 * Math.random();
+        const force = 8 + 5 * Math.random();
         this.dice.body.applyImpulse(
-            new CANNON.Vec3(-force, force, 0),
-            new CANNON.Vec3(0,0,.2)
+            new CANNON.Vec3(-(force / 2), (force * 2), -(force / 2)),
+            new CANNON.Vec3(0,0,.5)
         );
 
     }
