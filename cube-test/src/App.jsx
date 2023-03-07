@@ -12,9 +12,9 @@ function App() {
     
     useEffect(() => {
         const test = new scenenInit('myCanvas');
-        const physicsWorld = initPysics();
-        test.initialize(physicsWorld);
+        test.initialize();
         test.throwDice();
+        test.flipCoin();
         test.animate();
 
 
@@ -38,6 +38,14 @@ function App() {
                     test.throwDice();
                 }
             });
+        customFunctionFolder
+            .add(customParams, 'printHello')
+            .name('Flip coin')
+            .onChange((value) =>{
+                if (value === true){
+                    test.flipCoin();
+                }
+            })
 
         // Destory gui to prevent multiple stale ui from being displayed 
         return() => {
