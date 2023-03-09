@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react'
 import { GUI } from 'dat.gui';
 import './App.css'
 import scenenInit from './lib/screenInit';
-import { initPysics } from './lib/cubeInit';
+
+
 
 
 
 
 function App() {
-
     
     useEffect(() => {
         const test = new scenenInit('myCanvas');

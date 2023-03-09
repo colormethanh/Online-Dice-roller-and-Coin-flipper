@@ -4,6 +4,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { initPysics, createFloor, createDice, createDiceMesh } from './cubeInit';
 import { createCoin } from './coinInit';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
+import { getCoin } from './getCoin';
+
 
 
 export default class scenenInit {
@@ -83,6 +86,23 @@ export default class scenenInit {
         this.topLight.shadow.camera.near = 5;
         this.topLight.shadow.camera.far = 400;
         this.scene.add(this.topLight);
+
+        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+        pmremGenerator.compileEquirectangularShader();
+        
+        
+        
+        const fthis = this;
+        const rgbeLoader = new RGBELoader();
+        rgbeLoader.load('https://threejs.org/examples/textures/equirectangular/venice_sunset_1k.hdr', function(texture) {
+            const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+            fthis.scene.background = envMap;
+            fthis.scene.enviroment = envMap;
+            texture.dispose();
+            pmremGenerator.dispose();
+        });
+
+        // const coinModel = getCoin(this.scene, this.render);
 
         const {diceMesh, diceBody} = createDice(this.scene, this.physicsWorld);
         this.dice.mesh = diceMesh;
