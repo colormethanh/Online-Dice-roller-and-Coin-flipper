@@ -138,6 +138,7 @@ function createInnerGeometry() {
 }
 
 export function createDiceMesh() {
+
     const boxMaterialOuter = new THREE.MeshStandardMaterial({
         color: 0xeeeeee,
     })

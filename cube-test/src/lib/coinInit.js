@@ -1,6 +1,7 @@
 import * as THREE from 'three'; 
 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
-
+import { TextureLoader } from 'three';
+import map from './assets/textures/map.jpg'
 
 const params = {
     radius: 2.5,
@@ -21,9 +22,13 @@ export function createCoin(scene, physicsWorld) {
 
 
 function createMesh() {
+
+    const textureLoader = new TextureLoader();
+    const texture = textureLoader.load(map);
+
+
     const material = new THREE.MeshStandardMaterial({
-        metalness:0.7,
-        roughness:.3,
+        map: texture,
     })
 
     const geometry = new THREE.CylinderGeometry(params.radius, 
@@ -33,6 +38,7 @@ function createMesh() {
     const coin = new THREE.Mesh(geometry, material);
     
     coin.position.set( -5, 0, 0);
+    coin.castShadow = true;
 
     return coin
 }
