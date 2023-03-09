@@ -12,7 +12,7 @@ export default class scenenInit {
         this.scene = undefined;
         this.camera = undefined;
         this.cameraX = 0;
-        this.cameraY = 7;
+        this.cameraY = 10;
         this.cameraZ = 20;
         this.renderer = undefined;
 
