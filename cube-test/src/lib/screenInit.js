@@ -131,13 +131,13 @@ export default class scenenInit {
         this.coin.body.position = new CANNON.Vec3(-5, 1.5, 0);
         this.coin.mesh.position.copy(this.coin.body.position);
 
-        this.coin.mesh.rotation.set(2* Math.PI * Math.random(), 0, 2 * Math.PI * Math.random());
+        // this.coin.mesh.rotation.set(2* Math.PI * Math.random(), 0, 2 * Math.PI * Math.random());
         this.coin.body.quaternion.copy(this.coin.mesh.quaternion);
 
         const force = 8 + 5 * Math.random();
         this.coin.body.applyImpulse(
             new CANNON.Vec3(0, force * 2, -force),
-            new CANNON.Vec3(0,0,1)
+            new CANNON.Vec3(0,0,1.5 * Math.random())
         )
 
 
