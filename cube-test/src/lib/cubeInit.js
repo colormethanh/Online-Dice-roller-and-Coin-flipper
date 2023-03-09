@@ -159,17 +159,17 @@ export function createDiceMesh() {
 }
 
 export function createDice(scene, physicsWorld) {
-    const mesh = new createDiceMesh();
-    scene.add(mesh);
+    const diceMesh = new createDiceMesh();
+    scene.add(diceMesh);
 
-    const body = new CANNON.Body({
+    const diceBody = new CANNON.Body({
         mass: 1,
         shape: new CANNON.Box(new CANNON.Vec3(params.boxSize / 2, params.boxSize / 2, params.boxSize / 2)),
         sleepTimeLimit:.1
     });
-    physicsWorld.addBody(body);
+    physicsWorld.addBody(diceBody);
 
-    return {mesh, body}
+    return {diceMesh, diceBody}
 }
 
 
