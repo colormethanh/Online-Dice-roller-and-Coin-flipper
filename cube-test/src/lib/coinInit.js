@@ -1,8 +1,6 @@
 import * as THREE from 'three'; 
 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
 import map from './assets/textures/map.jpg'
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import glb from './assets/models/coin.glb';
 
 const params = {
     radius: 2.5,
@@ -11,25 +9,11 @@ const params = {
 }
 
 export function createCoin(scene, physicsWorld) {
-
-    // let coinLoader = new GLTFLoader();
-    // coinLoader.load( glb , (glb) =>{
-    //     const objMesh = glb.scene;
-    //     objMesh.traverse((obj) => {
-    //         if (obj.isMesh) {
-    //             obj.material.color.set(0xffffff)
-    //         };
-    //     });
-        
-    //     scene.add(objMesh);
-    // });
-
     
     const coinMesh = createMesh();
     scene.add(coinMesh);
     const coinBody = createBody();
     physicsWorld.addBody(coinBody);
-
     return {coinMesh, coinBody}
 
 }

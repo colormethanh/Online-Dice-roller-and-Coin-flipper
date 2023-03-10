@@ -2,11 +2,10 @@ import * as THREE from 'three';
 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
-import { initPysics, createFloor, createDice, createDiceMesh } from './cubeInit';
-import { createCoin } from './coinInit';
+import { createDiceMesh, diceParam } from './cubeInit';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
-import { getCoin } from './getCoin';
-
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import glb from './assets/models/coin.glb';
 
 
 export default class scenenInit {
@@ -15,11 +14,11 @@ export default class scenenInit {
         this.scene = undefined;
         this.camera = undefined;
         this.cameraX = 0;
-        this.cameraY = 10;
+        this.cameraY = 7;
         this.cameraZ = 20;
         this.renderer = undefined;
 
-        this.physicsWorld = initPysics();
+        this.physicsWorld = undefined;
 
         // Objects
         this.dice = {
@@ -30,7 +29,7 @@ export default class scenenInit {
         this.coin = {
             mesh: undefined,
             body: undefined
-        }
+        };
 
 
         // camera params
@@ -53,6 +52,8 @@ export default class scenenInit {
 
     initialize() {
         this.scene = new THREE.Scene();
+
+        //Camera
         this.camera = new THREE.PerspectiveCamera(
             this.fov,
             window.innerWidth / window.innerHeight,
@@ -61,6 +62,8 @@ export default class scenenInit {
         );
         this.camera.position.set(this.cameraX, this.cameraY, this.cameraZ);
         this.camera.lookAt(this.scene);
+
+        // Renderer
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.getElementById(this.canvasId),
             antialias: true,
@@ -69,12 +72,13 @@ export default class scenenInit {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
+        // Clock
         this.clock = new THREE.Clock();
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);
 
-        // lights
+        // Lights
         this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(this.ambientLight);
 
@@ -87,47 +91,118 @@ export default class scenenInit {
         this.topLight.shadow.camera.far = 400;
         this.scene.add(this.topLight);
 
-        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
-        pmremGenerator.compileEquirectangularShader();
-        
-        
-        
-        const fthis = this;
-        const rgbeLoader = new RGBELoader();
-        rgbeLoader.load('https://threejs.org/examples/textures/equirectangular/venice_sunset_1k.hdr', function(texture) {
-            const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-            fthis.scene.background = envMap;
-            fthis.scene.enviroment = envMap;
-            texture.dispose();
-            pmremGenerator.dispose();
-        });
-
-        // const coinModel = getCoin(this.scene, this.render);
-
-        const {diceMesh, diceBody} = createDice(this.scene, this.physicsWorld);
-        this.dice.mesh = diceMesh;
-        this.dice.body = diceBody;
-
-        const {coinMesh, coinBody} = createCoin(this.scene, this.physicsWorld);
-        this.coin.mesh = coinMesh;
-        this.coin.body = coinBody;
-
-        createFloor(this.scene, this.physicsWorld );
-
-
         // if window resizes
         window.addEventListener('resize', () => this.onWindowResize(), false);
     }
 
-    render() {
+    initPysics() {
+        let physicsWorld = new CANNON.World({
+         gravity: new CANNON.Vec3(0, -50, 0),
+        })
+        physicsWorld.defaultContactMaterial.restitution = .3;
+     
+        this.physicsWorld = physicsWorld;
+     }
+
+     render() {
         this.renderer.render(this.scene, this.camera);
     }
 
+
+    // Object Creations
+
+     createFloor() {
+        const floor = new THREE.Mesh(
+            new THREE.PlaneGeometry(250, 250),
+            new THREE.ShadowMaterial({
+                opacity: .1,
+                transparent: false,
+            })
+        )
+        floor.receiveShadow = true;
+        floor.position.y = -7;
+        floor.quaternion.setFromAxisAngle(new THREE.Vector3(-1, 0, 0), Math.PI * .5);
+        this.scene.add(floor);
+    
+        const floorBody = new CANNON.Body({
+            type: CANNON.Body.STATIC,
+            shape: new CANNON.Plane(),
+        });
+        floorBody.position.copy(floor.position);
+        floorBody.quaternion.copy(floor.quaternion);
+        this.physicsWorld.addBody(floorBody)
+    }
+
+    createDice() {
+        const diceMesh = new createDiceMesh();
+        this.scene.add(diceMesh);
+    
+        const diceBody = new CANNON.Body({
+            mass: 1,
+            shape: new CANNON.Box(new CANNON.Vec3(diceParam.boxSize / 2, diceParam.boxSize / 2, diceParam.boxSize / 2)),
+            sleepTimeLimit:.1
+        });
+        this.physicsWorld.addBody(diceBody);
+        this.dice.mesh = diceMesh;
+        this.dice.body = diceBody;
+    }
+
+    createCoin() {
+        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+        pmremGenerator.compileEquirectangularShader();
+    
+        const rgbeLoader = new RGBELoader();
+    
+        let coinLoader = new GLTFLoader();
+    
+        const mesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(), 
+            new THREE.MeshNormalMaterial()
+        );
+    
+        const body = new CANNON.Body({
+            mass: 1,
+            shape: new CANNON.Cylinder()
+        })
+
+        this.coin.mesh = mesh;
+        this.coin.body = body;
+    
+    
+        coinLoader.load( glb , (glb) =>{
+            const mesh = glb.scene;
+            
+            rgbeLoader.load('https://threejs.org/examples/textures/equirectangular/venice_sunset_1k.hdr', function(texture) {
+                const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                mesh.traverse((child) => {
+                    if(child instanceof THREE.Mesh) {
+                        child.material.envMap = envMap;
+                        child.material.color.set(0xE7E634);
+                        child.castShadow = true;
+                    };
+                });
+                texture.dispose();
+                pmremGenerator.dispose();
+            });
+            
+            mesh.scale.set(2,2,2);
+            this.scene.add(mesh);
+            const body = new CANNON.Body({
+                mass: 1,
+                shape: new CANNON.Cylinder(1 * 2, 1 * 2, .3 * 2, 20),
+            });
+            this.physicsWorld.addBody(body);
+
+            this.coin.mesh = mesh;
+            this.coin.body = body;
+        });
+    }
+
+    // Actions and Animations
     throwDice() {
 
         this.dice.body.velocity.setZero();
         this.dice.body.angularVelocity.setZero();
-
 
         this.dice.body.position = new CANNON.Vec3(5, 1.5, 0);
         this.dice.mesh.position.copy(this.dice.body.position);
@@ -140,7 +215,6 @@ export default class scenenInit {
             new CANNON.Vec3(-(force / 2), (force * 2), -(force / 2)),
             new CANNON.Vec3(0,0,.5)
         );
-
     }
 
     flipCoin() {
@@ -157,22 +231,20 @@ export default class scenenInit {
         const force = 8 + 5 * Math.random();
         this.coin.body.applyImpulse(
             new CANNON.Vec3(0, force * 2, -force),
-            new CANNON.Vec3(0,0,1.5 * Math.random())
+            new CANNON.Vec3(0,0,1 * Math.random())
         )
-
-
     }
 
     animate() {
-
         this.physicsWorld.fixedStep();
 
         this.dice.mesh.position.copy(this.dice.body.position);
         this.dice.mesh.quaternion.copy(this.dice.body.quaternion);
 
-        this.coin.mesh.position.copy(this.coin.body.position);
-        this.coin.mesh.quaternion.copy(this.coin.body.quaternion);
-
+        if (this.coin.mesh !== undefined) {
+            this.coin.mesh.position.copy(this.coin.body.position);
+            this.coin.mesh.quaternion.copy(this.coin.body.quaternion);
+        }
         
         this.renderer.render(this.scene, this.camera);
 
@@ -182,6 +254,7 @@ export default class scenenInit {
         this.controls.update();
     }
 
+    // Misc.
     onWindowResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();

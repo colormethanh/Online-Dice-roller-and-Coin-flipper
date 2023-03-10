@@ -13,6 +13,10 @@ function App() {
     useEffect(() => {
         const test = new scenenInit('myCanvas');
         test.initialize();
+        test.initPysics();
+        test.createFloor();
+        test.createCoin();
+        test.createDice();
         test.throwDice();
         test.flipCoin();
         test.animate();
