@@ -27,7 +27,7 @@ function App() {
         const cameraFolder = gui.addFolder('camera');
         cameraFolder.add(test.camera.position, 'x', -10, 20).name('Camera X');
         cameraFolder.add(test.camera.position, 'y', 0, 20).name('Camera Y');
-        cameraFolder.add(test.camera.position, 'z', 0, 20).name('Camera Z');
+        cameraFolder.add(test.camera.position, 'z', 0, 100).name('Camera Z');
 
         const customFunctionFolder = gui.addFolder('custom Function');
         customFunctionFolder.open();
@@ -48,6 +48,23 @@ function App() {
             .onChange((value) =>{
                 if (value === true){
                     test.flipCoin();
+                }
+            })
+
+        customFunctionFolder
+            .add(customParams, 'printHello')
+            .name('Camera Up')
+            .onChange((value) => {
+                if (value == true) {
+                    test.cameraUp();
+                }
+            })
+        customFunctionFolder
+            .add(customParams, 'printHello')
+            .name('Camera Down')
+            .onChange((value) => {
+                if (value == true) {
+                    test.cameraDown();
                 }
             })
 

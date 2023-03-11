@@ -6,6 +6,7 @@ import { createDiceMesh, diceParam } from './cubeInit';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import glb from './assets/models/coin.glb';
+import gsap from 'gsap'
 
 
 export default class scenenInit {
@@ -14,8 +15,8 @@ export default class scenenInit {
         this.scene = undefined;
         this.camera = undefined;
         this.cameraX = 0;
-        this.cameraY = 7;
-        this.cameraZ = 20;
+        this.cameraY = 1;
+        this.cameraZ = 25;
         this.renderer = undefined;
 
         this.physicsWorld = undefined;
@@ -222,7 +223,7 @@ export default class scenenInit {
         this.coin.body.velocity.setZero();
         this.coin.body.angularVelocity.setZero();
 
-        this.coin.body.position = new CANNON.Vec3(-5, 1.5, 0);
+        this.coin.body.position = new CANNON.Vec3(-5, 1.5, 7.5);
         this.coin.mesh.position.copy(this.coin.body.position);
 
         // this.coin.mesh.rotation.set(2* Math.PI * Math.random(), 0, 2 * Math.PI * Math.random());
@@ -233,6 +234,25 @@ export default class scenenInit {
             new CANNON.Vec3(0, force * 2, -force),
             new CANNON.Vec3(0,0,1 * Math.random())
         )
+    }
+
+    cameraUp() {
+        gsap.timeline()
+            .to(this.camera.position, { y: 15, z: 10, duration: 3,
+                                        onUpdate: function(){
+                                            this.camera.lookAt(this.scene);
+                                        }
+                                    });
+    }
+
+    cameraDown() {
+        gsap.timeline()
+            .to(this.camera.position, { y: 1, z: 25, 
+                                        duration: 3,
+                                        onUpdate: function(){
+                                            this.camera.lookAt(this.scene);
+                                        }
+                                    });
     }
 
     animate() {
