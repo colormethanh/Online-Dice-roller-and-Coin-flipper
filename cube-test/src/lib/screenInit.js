@@ -242,7 +242,7 @@ export default class scenenInit {
                                         onUpdate: function(){
                                             this.camera.lookAt(this.scene);
                                         }
-                                    });
+                                    }); 
     }
 
     cameraDown() {
