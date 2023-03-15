@@ -53,6 +53,7 @@ export default class scenenInit {
 
     initialize() {
         this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0xffffff);
 
         //Camera
         this.camera = new THREE.PerspectiveCamera(
@@ -265,8 +266,6 @@ export default class scenenInit {
             this.coin.mesh.position.copy(this.coin.body.position);
             this.coin.mesh.quaternion.copy(this.coin.body.quaternion);
         }
-        
-        this.renderer.render(this.scene, this.camera);
 
         window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);

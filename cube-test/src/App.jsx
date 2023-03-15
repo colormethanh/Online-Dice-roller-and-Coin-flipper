@@ -9,62 +9,65 @@ import scenenInit from './lib/screenInit';
 
 
 function App() {
-    
+
+    const [scene, setScene] = useState();
+
     useEffect(() => {
-        const test = new scenenInit('myCanvas');
-        test.initialize();
-        test.initPysics();
-        test.createFloor();
-        test.createCoin();
-        test.createDice();
-        test.throwDice();
-        test.flipCoin();
-        test.animate();
+        const scene = new scenenInit('myCanvas');
+        setScene(scene);
+        scene.initialize();
+        scene.initPysics();
+        scene.createFloor();
+        scene.createCoin();
+        scene.createDice();
+        scene.throwDice();
+        scene.flipCoin();
+        scene.animate();
 
 
         const gui = new GUI();
 
         const cameraFolder = gui.addFolder('camera');
-        cameraFolder.add(test.camera.position, 'x', -10, 20).name('Camera X');
-        cameraFolder.add(test.camera.position, 'y', 0, 20).name('Camera Y');
-        cameraFolder.add(test.camera.position, 'z', 0, 100).name('Camera Z');
+        cameraFolder.add(scene.camera.position, 'x', -10, 20).name('Camera X');
+        cameraFolder.add(scene.camera.position, 'y', 0, 20).name('Camera Y');
+        cameraFolder.add(scene.camera.position, 'z', 0, 100).name('Camera Z');
 
         const customFunctionFolder = gui.addFolder('custom Function');
         customFunctionFolder.open();
         const customParams = {
-            printHello: false,
+            function: false,
         };
         customFunctionFolder
-            .add(customParams, 'printHello')
+            .add(customParams, 'function')
             .name('Throw dice')
             .onChange((value) => {
                 if (value === true){
-                    test.throwDice();
+                    scene.throwDice();
                 }
             });
         customFunctionFolder
-            .add(customParams, 'printHello')
+            .add(customParams, 'function')
             .name('Flip coin')
             .onChange((value) =>{
                 if (value === true){
-                    test.flipCoin();
+                    scene.flipCoin();
                 }
             })
 
         customFunctionFolder
-            .add(customParams, 'printHello')
+            .add(customParams, 'function')
             .name('Camera Up')
             .onChange((value) => {
                 if (value == true) {
-                    test.cameraUp();
+                    scene.cameraUp();
                 }
             })
         customFunctionFolder
-            .add(customParams, 'printHello')
+            .add(customParams, 'function')
             .name('Camera Down')
             .onChange((value) => {
                 if (value == true) {
-                    test.cameraDown();
+                    scene.cameraDown();
                 }
             })
 
@@ -74,9 +77,27 @@ function App() {
         };
     }, []);
 
+    const throwDice = () => {
+        console.log("Throwing Dice");
+        scene.throwDice();
+    }
+
+    const flipCoin = () => {
+        console.log("Flipping Coin");
+        scene.flipCoin();
+    }
+
     return (
         <div className="App">
             <canvas id="myCanvas" />
+            <div className="content">
+                <button onClick={throwDice}>
+                    Roll Dice
+                </button>
+                <button  onClick={flipCoin}>
+                    Flip coin
+                </button>
+            </div>
         </div>
     );
 }
