@@ -37,22 +37,6 @@ function App() {
         const customParams = {
             function: false,
         };
-        customFunctionFolder
-            .add(customParams, 'function')
-            .name('Throw dice')
-            .onChange((value) => {
-                if (value === true){
-                    scene.throwDice();
-                }
-            });
-        customFunctionFolder
-            .add(customParams, 'function')
-            .name('Flip coin')
-            .onChange((value) =>{
-                if (value === true){
-                    scene.flipCoin();
-                }
-            })
 
         customFunctionFolder
             .add(customParams, 'function')
@@ -97,6 +81,7 @@ function App() {
                 <button  onClick={flipCoin}>
                     Flip coin
                 </button>
+                <br></br>
             </div>
         </div>
     );

@@ -99,7 +99,8 @@ export default class scenenInit {
 
     initPysics() {
         let physicsWorld = new CANNON.World({
-         gravity: new CANNON.Vec3(0, -50, 0),
+            allowSleep: true,
+            gravity: new CANNON.Vec3(0, -50, 0),
         })
         physicsWorld.defaultContactMaterial.restitution = .3;
      
@@ -137,6 +138,7 @@ export default class scenenInit {
 
     createDice() {
         const diceMesh = new createDiceMesh();
+        
         this.scene.add(diceMesh);
     
         const diceBody = new CANNON.Body({
@@ -147,6 +149,46 @@ export default class scenenInit {
         this.physicsWorld.addBody(diceBody);
         this.dice.mesh = diceMesh;
         this.dice.body = diceBody;
+        
+        this.addDiceEvents();
+    }
+
+    addDiceEvents() {
+        this.dice.body.addEventListener('sleep', (e) => {
+            this.dice.body.allowSleep = false;
+            const euler = new CANNON.Vec3();
+            e.target.quaternion.toEuler(euler);
+
+            const eps = .1;
+
+            let isZero = (angle) => Math.abs(angle) < eps;
+            let isHalfPi = (angle) => Math.abs(angle - .5 * Math.PI) < eps;
+            let isMinusHalfPi = (angle) => Math.abs(.5 * Math.PI + angle) < eps;
+            let isPiOrMinusPi = (angle) => (Math.abs(Math.PI - angle) < eps || Math.abs(Math.PI + angle) < eps);
+
+            
+            if (isZero(euler.z)) {
+                if (isZero(euler.x)) {
+                    console.log("Landed on 1");
+                } else if (isHalfPi(euler.x)) {
+                    console.log("landed on 4");
+                } else if (isMinusHalfPi(euler.x)) {
+                    console.log("Landed on 3");
+                } else if (isPiOrMinusPi(euler.x)) {
+                    console.log("landed on 6");
+                } else {
+                    // Landed on edge
+                    this.dice.body.allowSleep = true;
+                }
+            } else if (isHalfPi(euler.z)) {
+                console.log("landed on 2");
+            } else if (isMinusHalfPi(euler.z)) {
+                console.log("Landed on 5");
+            } else {
+                // landed on edge
+                this.dice.body.allowSleep = true;
+            }
+        });
     }
 
     createCoin() {
@@ -192,12 +234,39 @@ export default class scenenInit {
             const body = new CANNON.Body({
                 mass: 1,
                 shape: new CANNON.Cylinder(1 * 2, 1 * 2, .3 * 2, 20),
+                sleepTimeLimit: .1
             });
             this.physicsWorld.addBody(body);
 
             this.coin.mesh = mesh;
             this.coin.body = body;
+            this.addCoinEvents();
         });
+    }
+
+    addCoinEvents() {
+        this.coin.body.addEventListener('sleep', (e) => {
+            this.coin.body.allowSleep = false;
+            const euler = new CANNON.Vec3();
+            e.target.quaternion.toEuler(euler);
+            console.log("coin event");
+
+            const eps = .1;
+            
+            let isZero = (angle) => Math.abs(angle) < eps;
+            let isPiOrMinusPi = (angle) => (Math.abs( Math.PI - angle) < eps || Math.abs(Math.PI + angle) < eps);
+
+            if (isZero(euler.x)) {
+                console.log("HEADS!");
+            } else if (isPiOrMinusPi(euler.x)) {
+                console.log("TAILS!");
+            } else {
+                this.body.allowSleep = true;
+                console.log("landed on side");
+            }
+            console.log(euler.z, euler.y, euler.x);
+        })
+
     }
 
     // Actions and Animations
@@ -217,6 +286,8 @@ export default class scenenInit {
             new CANNON.Vec3(-(force / 2), (force * 2), -(force / 2)),
             new CANNON.Vec3(0,0,.5)
         );
+
+        this.dice.body.allowSleep = true;
     }
 
     flipCoin() {
@@ -235,6 +306,7 @@ export default class scenenInit {
             new CANNON.Vec3(0, force * 2, -force),
             new CANNON.Vec3(0,0,1 * Math.random())
         )
+        this.coin.body.allowSleep = true;
     }
 
     cameraUp() {
