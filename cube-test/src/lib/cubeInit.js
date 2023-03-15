@@ -148,7 +148,7 @@ export function createDiceMesh() {
     })
 
     const diceMesh = new THREE.Group();
-    const innerMesh = new THREE.Mesh(createInnerGeometry(),boxMaterialInner);
+    const innerMesh = new THREE.Mesh(createInnerGeometry(), boxMaterialInner);
     const outerMesh = new THREE.Mesh(createDiceGeometry(), boxMaterialOuter);
     outerMesh.castShadow = true;
     diceMesh.add(innerMesh, outerMesh);
