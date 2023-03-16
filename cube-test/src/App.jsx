@@ -16,8 +16,6 @@ function App() {
         const scene = new scenenInit('myCanvas');
         setScene(scene);
         scene.initialize();
-        scene.initPysics();
-        scene.createFloor();
         scene.createCoin();
         scene.createDice();
         scene.throwDice();
@@ -26,6 +24,10 @@ function App() {
 
 
         const gui = new GUI();
+
+        const lightFolder = gui.addFolder('light');
+        lightFolder.add(scene.topLight,'intensity' , 0, 1).name('topLight');
+        lightFolder.add(scene.ambientLight, 'intensity', 0,1).name('ambientLight');
 
         const cameraFolder = gui.addFolder('camera');
         cameraFolder.add(scene.camera.position, 'x', -10, 20).name('Camera X');

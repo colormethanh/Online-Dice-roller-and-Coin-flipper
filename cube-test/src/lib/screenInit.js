@@ -5,7 +5,7 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import { createDiceMesh, diceParam } from './cubeInit';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import glb from './assets/models/coin.glb';
+import glb from './assets/models/coin2.glb';
 import gsap from 'gsap'
 
 
@@ -46,14 +46,15 @@ export default class scenenInit {
         
         // lighting
         this.ambientLight = undefined;
-        this.directionalLight = undefined;
         this.topLight = undefined;
+        this.topLightColor = 0xfde295;
 
     }
 
     initialize() {
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xffffff);
+        // this.scene.background = new THREE.Color(0xfde295);
+        
 
         //Camera
         this.camera = new THREE.PerspectiveCamera(
@@ -74,6 +75,8 @@ export default class scenenInit {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
 
+
+
         // Clock
         this.clock = new THREE.Clock();
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -84,7 +87,7 @@ export default class scenenInit {
         this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         this.scene.add(this.ambientLight);
 
-        this.topLight = new THREE.PointLight(0xffffff, .5);
+        this.topLight = new THREE.PointLight(this.topLightColor, .5);
         this.topLight.position.set(10, 15, 0);
         this.topLight.castShadow = true;
         this.topLight.shadow.mapSize.width = 2048;
@@ -92,6 +95,12 @@ export default class scenenInit {
         this.topLight.shadow.camera.near = 5;
         this.topLight.shadow.camera.far = 400;
         this.scene.add(this.topLight);
+
+        // Physics
+        this.initPysics();
+
+        // Floor
+        this.createFloor();
 
         // if window resizes
         window.addEventListener('resize', () => this.onWindowResize(), false);
@@ -117,9 +126,13 @@ export default class scenenInit {
      createFloor() {
         const floor = new THREE.Mesh(
             new THREE.PlaneGeometry(250, 250),
-            new THREE.ShadowMaterial({
-                opacity: .1,
-                transparent: false,
+            // new THREE.ShadowMaterial({
+            //     opacity: .3,
+            //     transparent: false,
+            //     color: 0x000000
+            // })
+            new THREE.MeshLambertMaterial({
+                color:0xffffff
             })
         )
         floor.receiveShadow = true;
@@ -221,6 +234,7 @@ export default class scenenInit {
                 mesh.traverse((child) => {
                     if(child instanceof THREE.Mesh) {
                         child.material.envMap = envMap;
+                        child.material.envMapIntensity = .75;
                         child.material.color.set(0xE7E634);
                         child.castShadow = true;
                     };
@@ -233,7 +247,7 @@ export default class scenenInit {
             this.scene.add(mesh);
             const body = new CANNON.Body({
                 mass: 1,
-                shape: new CANNON.Cylinder(1 * 2, 1 * 2, .3 * 2, 20),
+                shape: new CANNON.Cylinder(2, 2, .3 * 2, 20),
                 sleepTimeLimit: .1
             });
             this.physicsWorld.addBody(body);
@@ -261,7 +275,7 @@ export default class scenenInit {
             } else if (isPiOrMinusPi(euler.x)) {
                 console.log("TAILS!");
             } else {
-                this.body.allowSleep = true;
+                this.coin.body.allowSleep = true;
                 console.log("landed on side");
             }
             console.log(euler.z, euler.y, euler.x);
@@ -311,28 +325,21 @@ export default class scenenInit {
 
     cameraUp() {
         gsap.timeline()
-            .to(this.camera.position, { y: 15, z: 10, duration: 3,
-                                        onUpdate: function(){
-                                            this.camera.lookAt(this.scene);
-                                        }
-                                    }); 
+            .to(this.camera.position, { y: 15, z: 10, duration: 3}); 
     }
 
     cameraDown() {
         gsap.timeline()
-            .to(this.camera.position, { y: 1, z: 25, 
-                                        duration: 3,
-                                        onUpdate: function(){
-                                            this.camera.lookAt(this.scene);
-                                        }
-                                    });
+            .to(this.camera.position, { y: 1, z: 25, duration: 3});
     }
 
     animate() {
         this.physicsWorld.fixedStep();
 
-        this.dice.mesh.position.copy(this.dice.body.position);
-        this.dice.mesh.quaternion.copy(this.dice.body.quaternion);
+        if (this.dice.mesh !== undefined) {
+            this.dice.mesh.position.copy(this.dice.body.position);
+            this.dice.mesh.quaternion.copy(this.dice.body.quaternion);
+        }
 
         if (this.coin.mesh !== undefined) {
             this.coin.mesh.position.copy(this.coin.body.position);
