@@ -5,8 +5,11 @@ import Stats from 'three/examples/jsm/libs/stats.module';
 import { createDiceMesh, diceParam } from './cubeInit';
 import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import glb from './assets/models/coin2.glb';
 import gsap from 'gsap'
+
+
 
 
 export default class scenenInit {
@@ -16,7 +19,7 @@ export default class scenenInit {
         this.camera = undefined;
         this.cameraX = 0;
         this.cameraY = 1;
-        this.cameraZ = 25;
+        this.cameraZ = 30;
         this.renderer = undefined;
 
         this.physicsWorld = undefined;
@@ -48,14 +51,14 @@ export default class scenenInit {
         this.ambientLight = undefined;
         this.topLight = undefined;
         this.topLightColor = 0xfde295;
-
+        this.ambientLightColor = 0xffffff;
     }
 
     initialize() {
         this.scene = new THREE.Scene();
-        // this.scene.background = new THREE.Color(0xfde295);
+        this.scene.background = new THREE.Color(0x000000);
+        this.scene.fog = new THREE.Fog( 0x000000, 0.15, 200 ); 
         
-
         //Camera
         this.camera = new THREE.PerspectiveCamera(
             this.fov,
@@ -73,22 +76,30 @@ export default class scenenInit {
         });
         this.renderer.shadowMap.enabled = true;
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.renderer.toneMappingExposure = 1;
         document.body.appendChild(this.renderer.domElement);
 
-
+        // env Map
+        // const env = new RoomEnvironment();
+        // const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+        // const texture = pmremGenerator.fromScene(env).texture;
+        // this.scene.environment = texture;
 
         // Clock
         this.clock = new THREE.Clock();
+        
+        // Helpers
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);
 
         // Lights
-        this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        this.ambientLight = new THREE.AmbientLight(this.ambientLightColor, 0.2);
         this.scene.add(this.ambientLight);
 
         this.topLight = new THREE.PointLight(this.topLightColor, .5);
-        this.topLight.position.set(10, 15, 0);
+        this.topLight.position.set(0, 15, -5);
         this.topLight.castShadow = true;
         this.topLight.shadow.mapSize.width = 2048;
         this.topLight.shadow.mapSize.height = 2048;
@@ -126,13 +137,9 @@ export default class scenenInit {
      createFloor() {
         const floor = new THREE.Mesh(
             new THREE.PlaneGeometry(250, 250),
-            // new THREE.ShadowMaterial({
-            //     opacity: .3,
-            //     transparent: false,
-            //     color: 0x000000
-            // })
             new THREE.MeshLambertMaterial({
-                color:0xffffff
+                color:0xffffff,
+                side: THREE.DoubleSide
             })
         )
         floor.receiveShadow = true;
@@ -166,6 +173,52 @@ export default class scenenInit {
         this.addDiceEvents();
     }
 
+    createCoin() {
+    
+        let coinLoader = new GLTFLoader();
+    
+        const mesh = new THREE.Mesh(
+            new THREE.CylinderGeometry(), 
+            new THREE.MeshNormalMaterial()
+        );
+    
+        const body = new CANNON.Body({
+            mass: 1,
+            shape: new CANNON.Cylinder()
+        })
+
+        this.coin.mesh = mesh;
+        this.coin.body = body;
+    
+
+        coinLoader.load(glb, (glb) => {
+            const mesh = glb.scene; 
+
+            mesh.traverse((child) => {
+                if (child instanceof THREE.Mesh) {
+                    child.castShadow = true;
+                    child.material.color.set(0xE7E634);
+                    child.material.metalness = 0;
+                    child.material.roughness = .1;
+                    child.material.envMapIntensity = 0.0;
+                };
+            });
+
+            mesh.scale.set(2, 2, 2);
+            this.scene.add(mesh);
+            const body = new CANNON.Body({
+                mass: 1,
+                shape: new CANNON.Cylinder(2,2,.3*2, 20),
+                sleepTimeLimit: 1
+            })
+            this.physicsWorld.addBody(body);
+            this.coin.mesh = mesh;
+            this.coin.body = body;
+            this.addCoinEvents();
+        });
+    }
+
+    // Object events to identify the side landed on
     addDiceEvents() {
         this.dice.body.addEventListener('sleep', (e) => {
             this.dice.body.allowSleep = false;
@@ -201,60 +254,6 @@ export default class scenenInit {
                 // landed on edge
                 this.dice.body.allowSleep = true;
             }
-        });
-    }
-
-    createCoin() {
-        const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
-        pmremGenerator.compileEquirectangularShader();
-    
-        const rgbeLoader = new RGBELoader();
-    
-        let coinLoader = new GLTFLoader();
-    
-        const mesh = new THREE.Mesh(
-            new THREE.CylinderGeometry(), 
-            new THREE.MeshNormalMaterial()
-        );
-    
-        const body = new CANNON.Body({
-            mass: 1,
-            shape: new CANNON.Cylinder()
-        })
-
-        this.coin.mesh = mesh;
-        this.coin.body = body;
-    
-    
-        coinLoader.load( glb , (glb) =>{
-            const mesh = glb.scene;
-            
-            rgbeLoader.load('https://threejs.org/examples/textures/equirectangular/venice_sunset_1k.hdr', function(texture) {
-                const envMap = pmremGenerator.fromEquirectangular(texture).texture;
-                mesh.traverse((child) => {
-                    if(child instanceof THREE.Mesh) {
-                        child.material.envMap = envMap;
-                        child.material.envMapIntensity = .75;
-                        child.material.color.set(0xE7E634);
-                        child.castShadow = true;
-                    };
-                });
-                texture.dispose();
-                pmremGenerator.dispose();
-            });
-            
-            mesh.scale.set(2,2,2);
-            this.scene.add(mesh);
-            const body = new CANNON.Body({
-                mass: 1,
-                shape: new CANNON.Cylinder(2, 2, .3 * 2, 20),
-                sleepTimeLimit: .1
-            });
-            this.physicsWorld.addBody(body);
-
-            this.coin.mesh = mesh;
-            this.coin.body = body;
-            this.addCoinEvents();
         });
     }
 
@@ -330,7 +329,7 @@ export default class scenenInit {
 
     cameraDown() {
         gsap.timeline()
-            .to(this.camera.position, { y: 1, z: 25, duration: 3});
+            .to(this.camera.position, { y: 1, z: 30, duration: 3});
     }
 
     animate() {

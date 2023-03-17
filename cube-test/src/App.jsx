@@ -29,9 +29,10 @@ function App() {
         lightFolder.add(scene.topLight,'intensity' , 0, 1).name('topLight');
         lightFolder.add(scene.ambientLight, 'intensity', 0,1).name('ambientLight');
 
+
         const cameraFolder = gui.addFolder('camera');
         cameraFolder.add(scene.camera.position, 'x', -10, 20).name('Camera X');
-        cameraFolder.add(scene.camera.position, 'y', 0, 20).name('Camera Y');
+        cameraFolder.add(scene.camera.position, 'y', -50, 20).name('Camera Y');
         cameraFolder.add(scene.camera.position, 'z', 0, 100).name('Camera Z');
 
         const customFunctionFolder = gui.addFolder('custom Function');
