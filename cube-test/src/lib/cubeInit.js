@@ -137,13 +137,11 @@ export function createDiceMesh(envMapIntensity) {
 
     const boxMaterialOuter = new THREE.MeshStandardMaterial({
         color: 0xeeeeee,
-        // envMapIntensity: 0,
     })
 
     const boxMaterialInner = new THREE.MeshStandardMaterial({
         color:0x000000,
-        roughness: 0,
-        // envMapIntensity: 0,
+        roughness: 0.1,
         side: THREE.DoubleSide
     })
 

@@ -27,7 +27,7 @@ function App() {
 
         const lightFolder = gui.addFolder('light');
         lightFolder.add(scene.topLight,'intensity' , 0, 1).name('topLight');
-        lightFolder.add(scene.ambientLight, 'intensity', 0,1).name('ambientLight');
+        lightFolder.add(scene.ambientLight, 'intensity', 0, 1).name('ambientLight');
 
 
         const cameraFolder = gui.addFolder('camera');

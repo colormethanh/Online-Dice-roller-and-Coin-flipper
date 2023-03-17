@@ -8,6 +8,9 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import glb from './assets/models/coin2.glb';
 import gsap from 'gsap'
+import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
+import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import { UnsignedShort4444Type } from 'three';
 
 
 
@@ -18,7 +21,7 @@ export default class scenenInit {
         this.scene = undefined;
         this.camera = undefined;
         this.cameraX = 0;
-        this.cameraY = 1;
+        this.cameraY = 10;
         this.cameraZ = 30;
         this.renderer = undefined;
 
@@ -50,14 +53,19 @@ export default class scenenInit {
         // lighting
         this.ambientLight = undefined;
         this.topLight = undefined;
-        this.topLightColor = 0xfde295;
-        this.ambientLightColor = 0xffffff;
+        this.topLightColor = 0x8f94a2;
+        this.ambientLightColor = 0x8f94a2;
+
+        // RectLights
+        this.recLightRed = undefined;
+        this.recLightGreen = undefined;
+        this.recLightBlue = undefined;
     }
 
     initialize() {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x000000);
-        this.scene.fog = new THREE.Fog( 0x000000, 0.15, 200 ); 
+        this.scene.fog = new THREE.Fog( 0x000000, 0.15, 200); 
         
         //Camera
         this.camera = new THREE.PerspectiveCamera(
@@ -95,10 +103,10 @@ export default class scenenInit {
         document.body.appendChild(this.stats.dom);
 
         // Lights
-        this.ambientLight = new THREE.AmbientLight(this.ambientLightColor, 0.2);
+        this.ambientLight = new THREE.AmbientLight(this.ambientLightColor, 0.00);
         this.scene.add(this.ambientLight);
 
-        this.topLight = new THREE.PointLight(this.topLightColor, .5);
+        this.topLight = new THREE.PointLight(this.topLightColor, .0);
         this.topLight.position.set(0, 15, -5);
         this.topLight.castShadow = true;
         this.topLight.shadow.mapSize.width = 2048;
@@ -106,6 +114,10 @@ export default class scenenInit {
         this.topLight.shadow.camera.near = 5;
         this.topLight.shadow.camera.far = 400;
         this.scene.add(this.topLight);
+        const pointLightHelper = new THREE.PointLightHelper(this.topLight, 1);
+        this.scene.add(pointLightHelper); 
+
+        this.initRectLights();
 
         // Physics
         this.initPysics();
@@ -134,12 +146,34 @@ export default class scenenInit {
 
     // Object Creations
 
+    initRectLights() {
+        RectAreaLightUniformsLib.init();
+
+        const rectLightRed = new THREE.RectAreaLight(0xff0000, 5, 4, 10);
+        rectLightRed.position.set(0, 0, -15);
+        rectLightRed.lookAt(new THREE.Vector3(0,0,10));
+        this.scene.add(rectLightRed);
+        this.scene.add( new RectAreaLightHelper( rectLightRed ) );
+
+        const rectLightGreen = new THREE.RectAreaLight(0x00ff00, 5, 4, 10);
+        rectLightGreen.position.set(6, 0, -15);
+        rectLightGreen.lookAt(new THREE.Vector3(6, 0, 10));
+        this.scene.add(rectLightGreen);
+        this.scene.add( new RectAreaLightHelper(rectLightGreen));
+
+        const rectLightBlue = new THREE.RectAreaLight(0x0000ff, 5, 4, 10);
+        rectLightBlue.position.set(-6, 0, -15);
+        rectLightBlue.lookAt(new THREE.Vector3(-6, 0, 10));
+        this.scene.add(rectLightBlue);
+        this.scene.add( new RectAreaLightHelper(rectLightBlue));
+    }
+
      createFloor() {
         const floor = new THREE.Mesh(
             new THREE.PlaneGeometry(250, 250),
-            new THREE.MeshLambertMaterial({
-                color:0xffffff,
-                side: THREE.DoubleSide
+            new THREE.MeshStandardMaterial({
+                color:0x848896,
+                roughness: .2,
             })
         )
         floor.receiveShadow = true;
@@ -197,9 +231,10 @@ export default class scenenInit {
             mesh.traverse((child) => {
                 if (child instanceof THREE.Mesh) {
                     child.castShadow = true;
-                    child.material.color.set(0xE7E634);
+                    // child.material.color.set(0x848896);
+                    child.material.color.set(0x464646);
                     child.material.metalness = 0;
-                    child.material.roughness = .1;
+                    child.material.roughness = 0.2;
                     child.material.envMapIntensity = 0.0;
                 };
             });
@@ -316,20 +351,20 @@ export default class scenenInit {
 
         const force = 8 + 5 * Math.random();
         this.coin.body.applyImpulse(
-            new CANNON.Vec3(0, force * 2, -force),
-            new CANNON.Vec3(0,0,1 * Math.random())
+            new CANNON.Vec3(force/2, force * 2, -force),
+            new CANNON.Vec3(0,0,1 + ( Math.random() * .5))
         )
         this.coin.body.allowSleep = true;
     }
 
     cameraUp() {
         gsap.timeline()
-            .to(this.camera.position, { y: 15, z: 10, duration: 3}); 
+            .to(this.camera.position, { y: 20, z: 10, duration: 3}); 
     }
 
     cameraDown() {
         gsap.timeline()
-            .to(this.camera.position, { y: 1, z: 30, duration: 3});
+            .to(this.camera.position, { y: this.cameraY, z:this.cameraZ, duration: 3});
     }
 
     animate() {
