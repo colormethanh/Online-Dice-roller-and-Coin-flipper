@@ -3,14 +3,12 @@ import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { createDiceMesh, diceParam } from './cubeInit';
-import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import glb from './assets/models/coin2.glb';
 import gsap from 'gsap'
 import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import { UnsignedShort4444Type } from 'three';
+
 
 
 
@@ -21,7 +19,7 @@ export default class scenenInit {
         this.scene = undefined;
         this.camera = undefined;
         this.cameraX = 0;
-        this.cameraY = 10;
+        this.cameraY = 2;
         this.cameraZ = 30;
         this.renderer = undefined;
 
@@ -51,21 +49,20 @@ export default class scenenInit {
         this.controls = undefined; 
         
         // lighting
-        this.ambientLight = undefined;
         this.topLight = undefined;
-        this.topLightColor = 0x8f94a2;
-        this.ambientLightColor = 0x8f94a2;
 
         // RectLights
+        this.rectLightW = 8;
+        this.rectLightH = 18;
         this.recLightRed = undefined;
         this.recLightGreen = undefined;
         this.recLightBlue = undefined;
+        this.rectLightWhite = undefined;
     }
 
     initialize() {
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x000000);
-        this.scene.fog = new THREE.Fog( 0x000000, 0.15, 200); 
+        this.scene.background = new THREE.Color(0x000000); 
         
         //Camera
         this.camera = new THREE.PerspectiveCamera(
@@ -88,12 +85,6 @@ export default class scenenInit {
         this.renderer.toneMappingExposure = 1;
         document.body.appendChild(this.renderer.domElement);
 
-        // env Map
-        // const env = new RoomEnvironment();
-        // const pmremGenerator = new THREE.PMREMGenerator(this.renderer);
-        // const texture = pmremGenerator.fromScene(env).texture;
-        // this.scene.environment = texture;
-
         // Clock
         this.clock = new THREE.Clock();
         
@@ -103,20 +94,14 @@ export default class scenenInit {
         document.body.appendChild(this.stats.dom);
 
         // Lights
-        this.ambientLight = new THREE.AmbientLight(this.ambientLightColor, 0.00);
-        this.scene.add(this.ambientLight);
-
-        this.topLight = new THREE.PointLight(this.topLightColor, .0);
-        this.topLight.position.set(0, 15, -5);
+        this.topLight = new THREE.PointLight(this.topLightColor, .1);
+        this.topLight.position.set(0, 15, 20);
         this.topLight.castShadow = true;
         this.topLight.shadow.mapSize.width = 2048;
         this.topLight.shadow.mapSize.height = 2048;
-        this.topLight.shadow.camera.near = 5;
-        this.topLight.shadow.camera.far = 400;
         this.scene.add(this.topLight);
         const pointLightHelper = new THREE.PointLightHelper(this.topLight, 1);
-        this.scene.add(pointLightHelper); 
-
+        this.scene.add(pointLightHelper);
         this.initRectLights();
 
         // Physics
@@ -134,7 +119,7 @@ export default class scenenInit {
             allowSleep: true,
             gravity: new CANNON.Vec3(0, -50, 0),
         })
-        physicsWorld.defaultContactMaterial.restitution = .3;
+        physicsWorld.defaultContactMaterial.restitution = .2;
      
         this.physicsWorld = physicsWorld;
      }
@@ -148,24 +133,29 @@ export default class scenenInit {
 
     initRectLights() {
         RectAreaLightUniformsLib.init();
+        const posX = Math.abs((this.rectLightH/2) - 7);
 
-        const rectLightRed = new THREE.RectAreaLight(0xff0000, 5, 4, 10);
-        rectLightRed.position.set(0, 0, -15);
-        rectLightRed.lookAt(new THREE.Vector3(0,0,10));
+        const rectLightRed = new THREE.RectAreaLight(0xff0000, 5, this.rectLightW, this.rectLightH);
+        this.rectLightRed = rectLightRed;
+        this.rectLightRed.position.set(0, posX, -15);
+        this.rectLightRed.lookAt(new THREE.Vector3(0, posX, 10));
         this.scene.add(rectLightRed);
         this.scene.add( new RectAreaLightHelper( rectLightRed ) );
 
-        const rectLightGreen = new THREE.RectAreaLight(0x00ff00, 5, 4, 10);
-        rectLightGreen.position.set(6, 0, -15);
-        rectLightGreen.lookAt(new THREE.Vector3(6, 0, 10));
+        const rectLightGreen = new THREE.RectAreaLight(0x00ff00, 5, this.rectLightW, this.rectLightH);
+        this.rectLightGreen = rectLightGreen;
+        this.rectLightGreen.position.set(10, posX, -12);
+        this.rectLightGreen.lookAt(new THREE.Vector3(0, posX, 10));
         this.scene.add(rectLightGreen);
         this.scene.add( new RectAreaLightHelper(rectLightGreen));
 
-        const rectLightBlue = new THREE.RectAreaLight(0x0000ff, 5, 4, 10);
-        rectLightBlue.position.set(-6, 0, -15);
-        rectLightBlue.lookAt(new THREE.Vector3(-6, 0, 10));
+        const rectLightBlue = new THREE.RectAreaLight(0x0000ff, 5, this.rectLightW, this.rectLightH);
+        this.rectLightBlue = rectLightBlue;
+        this.rectLightBlue.position.set(-10, posX, -12);
+        this.rectLightBlue.lookAt(new THREE.Vector3(0, posX, 10));
         this.scene.add(rectLightBlue);
         this.scene.add( new RectAreaLightHelper(rectLightBlue));
+
     }
 
      createFloor() {
@@ -194,15 +184,17 @@ export default class scenenInit {
         const diceMesh = new createDiceMesh();
         
         this.scene.add(diceMesh);
-    
-        const diceBody = new CANNON.Body({
-            mass: 1,
-            shape: new CANNON.Box(new CANNON.Vec3(diceParam.boxSize / 2, diceParam.boxSize / 2, diceParam.boxSize / 2)),
-            sleepTimeLimit:.1
-        });
-        this.physicsWorld.addBody(diceBody);
         this.dice.mesh = diceMesh;
-        this.dice.body = diceBody;
+
+        if (this.dice.body == undefined) {
+            const diceBody = new CANNON.Body({
+                mass: 1,
+                shape: new CANNON.Box(new CANNON.Vec3(diceParam.boxSize / 2, diceParam.boxSize / 2, diceParam.boxSize / 2)),
+                sleepTimeLimit:.1
+            });  
+           this.physicsWorld.addBody(diceBody);
+           this.dice.body = diceBody;  
+        }
         
         this.addDiceEvents();
     }
@@ -231,8 +223,8 @@ export default class scenenInit {
             mesh.traverse((child) => {
                 if (child instanceof THREE.Mesh) {
                     child.castShadow = true;
-                    // child.material.color.set(0x848896);
-                    child.material.color.set(0x464646);
+                    // child.material.color.set(0x464646);
+                    child.material.color.set(0xfbcb08);
                     child.material.metalness = 0;
                     child.material.roughness = 0.2;
                     child.material.envMapIntensity = 0.0;
@@ -241,14 +233,18 @@ export default class scenenInit {
 
             mesh.scale.set(2, 2, 2);
             this.scene.add(mesh);
+            this.coin.mesh = mesh;
+
+            
             const body = new CANNON.Body({
                 mass: 1,
-                shape: new CANNON.Cylinder(2,2,.3*2, 20),
+                shape: new CANNON.Cylinder(2, 2, .3*2, 20),
                 sleepTimeLimit: 1
-            })
+            });
             this.physicsWorld.addBody(body);
-            this.coin.mesh = mesh;
             this.coin.body = body;
+            
+            
             this.addCoinEvents();
         });
     }
@@ -266,7 +262,6 @@ export default class scenenInit {
             let isHalfPi = (angle) => Math.abs(angle - .5 * Math.PI) < eps;
             let isMinusHalfPi = (angle) => Math.abs(.5 * Math.PI + angle) < eps;
             let isPiOrMinusPi = (angle) => (Math.abs(Math.PI - angle) < eps || Math.abs(Math.PI + angle) < eps);
-
             
             if (isZero(euler.z)) {
                 if (isZero(euler.x)) {
@@ -319,19 +314,19 @@ export default class scenenInit {
 
     // Actions and Animations
     throwDice() {
-
+        
         this.dice.body.velocity.setZero();
         this.dice.body.angularVelocity.setZero();
 
-        this.dice.body.position = new CANNON.Vec3(5, 1.5, 0);
+        this.dice.body.position = new CANNON.Vec3(5, 1.5, 3);
         this.dice.mesh.position.copy(this.dice.body.position);
 
-        this.dice.mesh.rotation.set(2* Math.PI * Math.random(), 0, 2 * Math.PI * Math.random());
+        this.dice.mesh.rotation.set(2 * Math.PI * Math.random(), 0, 2 * Math.PI * Math.random());
         this.dice.body.quaternion.copy(this.dice.mesh.quaternion);
 
-        const force = 8 + 5 * Math.random();
+        const force = 5 + 5 * Math.random();
         this.dice.body.applyImpulse(
-            new CANNON.Vec3(-(force / 2), (force * 2), -(force / 2)),
+            new CANNON.Vec3(-(force / 2), (force * 2.5), -(force / 2)),
             new CANNON.Vec3(0,0,.5)
         );
 
@@ -346,7 +341,7 @@ export default class scenenInit {
         this.coin.body.position = new CANNON.Vec3(-5, 1.5, 7.5);
         this.coin.mesh.position.copy(this.coin.body.position);
 
-        // this.coin.mesh.rotation.set(2* Math.PI * Math.random(), 0, 2 * Math.PI * Math.random());
+        this.coin.mesh.rotation.set(2* Math.PI * Math.random(), 0, 0);
         this.coin.body.quaternion.copy(this.coin.mesh.quaternion);
 
         const force = 8 + 5 * Math.random();
@@ -359,12 +354,17 @@ export default class scenenInit {
 
     cameraUp() {
         gsap.timeline()
-            .to(this.camera.position, { y: 20, z: 10, duration: 3}); 
+            .to(this.camera.position, { y: 9.5, z: 15, duration: 2}); 
     }
 
     cameraDown() {
         gsap.timeline()
-            .to(this.camera.position, { y: this.cameraY, z:this.cameraZ, duration: 3});
+            .to(this.camera.position, {x: this.cameraX, y: this.cameraY, z:this.cameraZ, duration: 2});
+    }
+
+    removeObj(mesh, body) {
+        body.position.set(50);
+        mesh.position.copy(body.position);
     }
 
     animate() {

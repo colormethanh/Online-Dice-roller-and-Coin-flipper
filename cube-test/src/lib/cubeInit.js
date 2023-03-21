@@ -133,7 +133,7 @@ function createInnerGeometry() {
     ], false);
 }
 
-export function createDiceMesh(envMapIntensity) {
+export function createDiceMesh() {
 
     const boxMaterialOuter = new THREE.MeshStandardMaterial({
         color: 0xeeeeee,

@@ -27,13 +27,19 @@ function App() {
 
         const lightFolder = gui.addFolder('light');
         lightFolder.add(scene.topLight,'intensity' , 0, 1).name('topLight');
-        lightFolder.add(scene.ambientLight, 'intensity', 0, 1).name('ambientLight');
-
+        // lightFolder.add(scene.ambientLight, 'intensity', 0, 1).name('ambientLight');
+        // lightFolder.add(scene.rectLightWhite, 'intensity', 0, 20).name('rectLightW');
+        lightFolder.add(scene.rectLightRed, 'intensity', 0, 20).name('rectLightR');
+        lightFolder.add(scene.rectLightGreen, 'intensity', 0, 20).name('rectLightG');
+        lightFolder.add(scene.rectLightBlue, 'intensity', 0, 20).name('rectLightB');
 
         const cameraFolder = gui.addFolder('camera');
-        cameraFolder.add(scene.camera.position, 'x', -10, 20).name('Camera X');
+        cameraFolder.add(scene.camera.position, 'x', -10, 50).name('Camera X');
         cameraFolder.add(scene.camera.position, 'y', -50, 20).name('Camera Y');
         cameraFolder.add(scene.camera.position, 'z', 0, 100).name('Camera Z');
+        cameraFolder.add(scene.topLight.position, 'x', -25, 50).name('toplightX');
+        cameraFolder.add(scene.topLight.position, 'y', -25, 50).name('toplightY');
+        cameraFolder.add(scene.topLight.position, 'z', -25, 50).name('toplightZ');
 
         const customFunctionFolder = gui.addFolder('custom Function');
         customFunctionFolder.open();
@@ -74,6 +80,35 @@ function App() {
         scene.flipCoin();
     }
 
+    const removeCoin = () => {
+        if (scene.coin.mesh == undefined) {
+            return;
+        }
+        console.log("Removing Coin");
+        scene.removeObj(scene.coin.mesh);
+        scene.coin.mesh = undefined;
+    }
+
+    const createCoin = () => {
+        if (scene.coin.mesh == undefined) {
+            scene.createCoin();
+        }
+    }
+
+    const removeDice = () => {
+        if (scene.dice.mesh == undefined) {
+            return;
+        }
+        console.log("Removing Dice");
+        scene.removeObj(scene.dice.mesh);
+    }
+
+    const createDice = () => {
+        if (scene.dice.mesh == undefined) {
+            scene.createDice()
+        }
+    }
+
     return (
         <div className="App">
             <canvas id="myCanvas" />
@@ -82,9 +117,22 @@ function App() {
                     Roll Dice
                 </button>
                 <button  onClick={flipCoin}>
-                    Flip coin
+                    Flip Coin
                 </button>
                 <br></br>
+                <button onClick={removeCoin}>
+                    Remove Coin
+                </button>
+                <button onClick={createCoin}>
+                    Add Coin
+                </button>
+                <br></br>
+                <button onClick={removeDice}>
+                    Remove Dice
+                </button>
+                <button onClick={createDice}>
+                    Create Dice
+                </button>
             </div>
         </div>
     );
