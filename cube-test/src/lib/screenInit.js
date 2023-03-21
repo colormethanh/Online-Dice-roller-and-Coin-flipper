@@ -352,6 +352,41 @@ export default class scenenInit {
         this.coin.body.allowSleep = true;
     }
 
+    removeDice() {
+        this.dice.body.velocity.setZero();
+        this.dice.body.angularVelocity.setZero();
+
+        this.dice.body.position = new CANNON.Vec3(0, 0, -100);
+        this.dice.mesh.position.copy(this.dice.body.position);
+    }
+
+    removeCoin() {
+        this.coin.body.velocity.setZero();
+        this.coin.body.angularVelocity.setZero();
+
+        this.coin.body.position = new CANNON.Vec3(0, 0, -100);
+        this.coin.mesh.position.copy(this.coin.body.position);
+    }
+
+    selectDice() {
+        this.dice.body.velocity.setZero();
+        this.dice.body.angularVelocity.setZero();
+
+        this.dice.body.position = new CANNON.Vec3(0, 15, 0);
+        this.dice.mesh.position.copy(this.dice.body.position);
+
+        this.dice.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
+    }
+
+    selectCoin() {
+        this.coin.body.velocity.setZero();
+        this.coin.body.angularVelocity.setZero();
+
+        this.coin.body.position = new CANNON.Vec3(0, 15, 0);
+        this.coin.mesh.position.copy(this.coin.body.position);
+        this.coin.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
+    }
+
     cameraUp() {
         gsap.timeline()
             .to(this.camera.position, { y: 9.5, z: 15, duration: 2}); 
@@ -360,11 +395,6 @@ export default class scenenInit {
     cameraDown() {
         gsap.timeline()
             .to(this.camera.position, {x: this.cameraX, y: this.cameraY, z:this.cameraZ, duration: 2});
-    }
-
-    removeObj(mesh, body) {
-        body.position.set(50);
-        mesh.position.copy(body.position);
     }
 
     animate() {
