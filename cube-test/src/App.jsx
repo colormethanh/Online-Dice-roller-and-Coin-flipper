@@ -80,33 +80,14 @@ function App() {
         scene.flipCoin();
     }
 
-    const removeCoin = () => {
-        if (scene.coin.mesh == undefined) {
-            return;
-        }
-        console.log("Removing Coin");
-        scene.removeObj(scene.coin.mesh);
-        scene.coin.mesh = undefined;
+    const selectCoin = () => {
+        scene.removeDice();
+        scene.selectCoin();
     }
 
-    const createCoin = () => {
-        if (scene.coin.mesh == undefined) {
-            scene.createCoin();
-        }
-    }
-
-    const removeDice = () => {
-        if (scene.dice.mesh == undefined) {
-            return;
-        }
-        console.log("Removing Dice");
-        scene.removeObj(scene.dice.mesh);
-    }
-
-    const createDice = () => {
-        if (scene.dice.mesh == undefined) {
-            scene.createDice()
-        }
+    const selectDice = () => {
+        scene.removeCoin();
+        scene.selectDice();
     }
 
     return (
@@ -120,18 +101,11 @@ function App() {
                     Flip Coin
                 </button>
                 <br></br>
-                <button onClick={removeCoin}>
-                    Remove Coin
+                <button onClick={selectDice}>
+                    Select Dice 
                 </button>
-                <button onClick={createCoin}>
-                    Add Coin
-                </button>
-                <br></br>
-                <button onClick={removeDice}>
-                    Remove Dice
-                </button>
-                <button onClick={createDice}>
-                    Create Dice
+                <button onClick={selectCoin}>
+                    Select Coin 
                 </button>
             </div>
         </div>
