@@ -18,8 +18,8 @@ function App() {
         scene.initialize();
         scene.createCoin();
         scene.createDice();
-        scene.throwDice();
-        scene.flipCoin();
+        // scene.throwDice();
+        // scene.flipCoin();
         scene.animate();
 
 
@@ -27,8 +27,6 @@ function App() {
 
         const lightFolder = gui.addFolder('light');
         lightFolder.add(scene.topLight,'intensity' , 0, 1).name('topLight');
-        // lightFolder.add(scene.ambientLight, 'intensity', 0, 1).name('ambientLight');
-        // lightFolder.add(scene.rectLightWhite, 'intensity', 0, 20).name('rectLightW');
         lightFolder.add(scene.rectLightRed, 'intensity', 0, 20).name('rectLightR');
         lightFolder.add(scene.rectLightGreen, 'intensity', 0, 20).name('rectLightG');
         lightFolder.add(scene.rectLightBlue, 'intensity', 0, 20).name('rectLightB');
@@ -90,6 +88,14 @@ function App() {
         scene.selectDice();
     }
 
+    const emptyState = () => {
+        scene.emptyState();
+    }
+
+    const selectState = () => {
+        scene.selectState();
+    }
+
     return (
         <div className="App">
             <canvas id="myCanvas" />
@@ -106,6 +112,12 @@ function App() {
                 </button>
                 <button onClick={selectCoin}>
                     Select Coin 
+                </button>
+                <button onClick={emptyState}>
+                    Empty State
+                </button>
+                <button onClick={selectState}>
+                    Select State
                 </button>
             </div>
         </div>

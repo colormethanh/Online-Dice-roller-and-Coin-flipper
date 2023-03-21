@@ -8,6 +8,7 @@ import glb from './assets/models/coin2.glb';
 import gsap from 'gsap'
 import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+import { Vector3 } from 'three';
 
 
 
@@ -24,6 +25,8 @@ export default class scenenInit {
         this.renderer = undefined;
 
         this.physicsWorld = undefined;
+
+        this.state = "select"
 
         // Objects
         this.dice = {
@@ -128,9 +131,20 @@ export default class scenenInit {
         this.renderer.render(this.scene, this.camera);
     }
 
+    // displayStates 
+    emptyState() {
+        this.removeDice();
+        this.removeCoin();
+    }
+
+    selectState() {
+        this.state = "select";
+
+        this.dice.mesh.position.set(4, 0, -5);
+        this.coin.mesh.position.set(-4, 0, -5);
+    }
 
     // Object Creations
-
     initRectLights() {
         RectAreaLightUniformsLib.init();
         const posX = Math.abs((this.rectLightH/2) - 7);
@@ -158,7 +172,7 @@ export default class scenenInit {
 
     }
 
-     createFloor() {
+    createFloor() {
         const floor = new THREE.Mesh(
             new THREE.PlaneGeometry(250, 250),
             new THREE.MeshStandardMaterial({
@@ -182,10 +196,9 @@ export default class scenenInit {
 
     createDice() {
         const diceMesh = new createDiceMesh();
-        
         this.scene.add(diceMesh);
         this.dice.mesh = diceMesh;
-
+        this.dice.mesh.position.set(4, 0, -5);
         if (this.dice.body == undefined) {
             const diceBody = new CANNON.Body({
                 mass: 1,
@@ -232,6 +245,7 @@ export default class scenenInit {
             });
 
             mesh.scale.set(2, 2, 2);
+            mesh.position.set(-4, 0, -5);
             this.scene.add(mesh);
             this.coin.mesh = mesh;
 
@@ -314,7 +328,8 @@ export default class scenenInit {
 
     // Actions and Animations
     throwDice() {
-        
+        this.removeCoin();
+        this.state = "throw";
         this.dice.body.velocity.setZero();
         this.dice.body.angularVelocity.setZero();
 
@@ -334,7 +349,8 @@ export default class scenenInit {
     }
 
     flipCoin() {
-
+        this.removeDice();
+        this.state = "throw";
         this.coin.body.velocity.setZero();
         this.coin.body.angularVelocity.setZero();
 
@@ -369,6 +385,7 @@ export default class scenenInit {
     }
 
     selectDice() {
+        this.state = "dice"
         this.dice.body.velocity.setZero();
         this.dice.body.angularVelocity.setZero();
 
@@ -379,6 +396,7 @@ export default class scenenInit {
     }
 
     selectCoin() {
+        this.state = "coin"
         this.coin.body.velocity.setZero();
         this.coin.body.angularVelocity.setZero();
 
@@ -399,16 +417,25 @@ export default class scenenInit {
 
     animate() {
         this.physicsWorld.fixedStep();
-
-        if (this.dice.mesh !== undefined) {
-            this.dice.mesh.position.copy(this.dice.body.position);
-            this.dice.mesh.quaternion.copy(this.dice.body.quaternion);
+        if (this.state != "select") {
+            if (this.dice.mesh !== undefined) {
+                this.dice.mesh.position.copy(this.dice.body.position);
+                this.dice.mesh.quaternion.copy(this.dice.body.quaternion);
+            }
+    
+            if (this.coin.mesh !== undefined) {
+                this.coin.mesh.position.copy(this.coin.body.position);
+                this.coin.mesh.quaternion.copy(this.coin.body.quaternion);
+            }
         }
 
-        if (this.coin.mesh !== undefined) {
-            this.coin.mesh.position.copy(this.coin.body.position);
-            this.coin.mesh.quaternion.copy(this.coin.body.quaternion);
+        if (this.state == "select") {
+            this.coin.mesh.rotation.y += .01;
+            this.coin.mesh.rotation.x += .01;
+            this.dice.mesh.rotation.y += .01;
+            this.dice.mesh.rotation.x += .01;
         }
+        
 
         window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
