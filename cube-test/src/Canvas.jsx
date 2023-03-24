@@ -4,7 +4,7 @@ import './App.css'
 import scenenInit from './lib/screenInit';
 
 
-function Canvas() {
+export default function Canvas() {
     
     const [scene, setScene] = useState();
 
@@ -95,7 +95,7 @@ function Canvas() {
     return(
         <div>
             <canvas id="myCanvas" />
-            <div className="content">
+            {/* <div className="content">
                 <button onClick={throwDice}>
                     Roll Dice
                 </button>
@@ -115,9 +115,7 @@ function Canvas() {
                 <button onClick={selectState}>
                     Select State
                 </button>
-            </div>
+            </div> */}
         </div>
     )
 }
-
-export default Canvas

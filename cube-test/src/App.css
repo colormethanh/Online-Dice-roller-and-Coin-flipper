@@ -1,7 +1,9 @@
+@import url("https://fonts.googleapis.com/css?family=Fira+Mono:400");
 
 body {
   margin: 0;
   overflow: hidden;
+  font-family: "Fira Mono", sans-serif;
 }
 
 .content {

@@ -1,14 +1,14 @@
 import './App.css'
 import Canvas from './Canvas'
+import Screen from './Screen'
 
-function App() {
+export default function App() {
 
     return (
         <div className="App">
-
+            <Screen />
             <Canvas />
         </div>
     );
 }
 
-export default App
