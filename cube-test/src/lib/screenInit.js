@@ -8,7 +8,6 @@ import glb from './assets/models/coin2.glb';
 import gsap from 'gsap'
 import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
-import { Vector3 } from 'three';
 
 
 
@@ -80,11 +79,11 @@ export default class scenenInit {
         // Renderer
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.getElementById(this.canvasId),
-            antialias: false,
+            antialias: true,
         });
         this.renderer.shadowMap.enabled = true;
         //Base value
-        this.renderer.setPixelRatio( window.devicePixelRatio * .5 );
+        this.renderer.setPixelRatio( window.devicePixelRatio * .50 );
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1;
@@ -102,8 +101,8 @@ export default class scenenInit {
         this.topLight = new THREE.PointLight(this.topLightColor, .2);
         this.topLight.position.set(0, 15, 20);
         this.topLight.castShadow = true;
-        this.topLight.shadow.mapSize.width = 2048;
-        this.topLight.shadow.mapSize.height = 2048;
+        this.topLight.shadow.mapSize.width = 2048 / 2;
+        this.topLight.shadow.mapSize.height = 2048 / 2;
         this.scene.add(this.topLight);
         const pointLightHelper = new THREE.PointLightHelper(this.topLight, 1);
         this.scene.add(pointLightHelper);
