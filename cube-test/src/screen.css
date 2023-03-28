@@ -31,6 +31,7 @@
     justify-self: center;
     align-self: center;
     transition: rotate 1s ease-in-out;
+    cursor: pointer;
   }
   
   .rotate {
@@ -38,7 +39,6 @@
   }
   
   .side-bar-wrapper {
-    /* border: 2px dashed green; */
     font-family: "Fira Mono";
     grid-area: 2/1/6/2;
     display: grid;
@@ -69,41 +69,37 @@
   }
   
   .item-inner {
-    transition: transform 3s, opacity 6s;
-    opacity: 100;
+    cursor: pointer;
+    transform: translateY(2rem);
   }
   
   .item-up {
-    animation: item-up 1s ease-in;
+    animation: item-up 1s ease-out;
+    animation-fill-mode: forwards;
+    animation-delay: calc(var(--animation-order) * 100ms);
   }
   
   .item-down {
-    /* animation: name duration timing-function delay iteration-count direction fill-mode; */
-    animation: item-down 1s forwards;
+    animation: item-down 1s ease-out;
+    animation-fill-mode: backwards;
+    animation-delay: calc(var(--animation-order) * 100ms);
   }
   
   @keyframes item-up {
     0% {
       transform: translateY(2rem);
-      opacity: 0;
-      visibility: hidden;
     }
     100% {
       transform: translateY(0);
-      opacity: 100;
-      visibility: visible;
     }
   }
   
   @keyframes item-down {
     0% {
       transform: translateY(0);
-      opacity: 100;
-      visibility: inherit;
     }
     100% {
       transform: translateY(2rem);
-      opacity: 0;
     }
   }
   

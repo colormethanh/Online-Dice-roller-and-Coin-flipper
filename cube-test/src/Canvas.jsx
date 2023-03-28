@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { GUI } from 'dat.gui';
 import './App.css'
 import scenenInit from './lib/screenInit';
+import Screen from './Screen'
 
 
 export default function Canvas() {
@@ -95,27 +96,7 @@ export default function Canvas() {
     return(
         <div>
             <canvas id="myCanvas" />
-            {/* <div className="content">
-                <button onClick={throwDice}>
-                    Roll Dice
-                </button>
-                <button  onClick={flipCoin}>
-                    Flip Coin
-                </button>
-                <br></br>
-                <button onClick={selectDice}>
-                    Select Dice 
-                </button>
-                <button onClick={selectCoin}>
-                    Select Coin 
-                </button>
-                <button onClick={emptyState}>
-                    Empty State
-                </button>
-                <button onClick={selectState}>
-                    Select State
-                </button>
-            </div> */}
+            <Screen scene={scene} />
         </div>
     )
 }
