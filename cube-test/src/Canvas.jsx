@@ -24,6 +24,7 @@ export default function Canvas() {
 
         const lightFolder = gui.addFolder('light');
         lightFolder.add(scene.topLight,'intensity' , 0, 1).name('topLight');
+        lightFolder.add(scene.directionalLight, 'intensity',0,1).name('dirLight');
         lightFolder.add(scene.rectLightRed, 'intensity', 0, 20).name('rectLightR');
         lightFolder.add(scene.rectLightGreen, 'intensity', 0, 20).name('rectLightG');
         lightFolder.add(scene.rectLightBlue, 'intensity', 0, 20).name('rectLightB');

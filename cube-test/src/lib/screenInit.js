@@ -52,6 +52,7 @@ export default class scenenInit {
         
         // lighting
         this.topLight = undefined;
+        this.directionalLight = undefined;
 
         // RectLights
         this.rectLightW = 8;
@@ -100,13 +101,20 @@ export default class scenenInit {
 
         // Lights
         this.topLight = new THREE.PointLight(this.topLightColor, .2);
-        this.topLight.position.set(0, 15, 20);
+        this.topLight.position.set(0, 24, 2);
         this.topLight.castShadow = true;
-        this.topLight.shadow.mapSize.width = 2048 / 3;
-        this.topLight.shadow.mapSize.height = 2048 / 3;
+        this.topLight.shadow.mapSize.width = 2048;
+        this.topLight.shadow.mapSize.height = 2048;
         this.scene.add(this.topLight);
         const pointLightHelper = new THREE.PointLightHelper(this.topLight, 1);
         this.scene.add(pointLightHelper);
+        
+        this.directionalLight = new THREE.DirectionalLight( this.topLightColor, 0.1 );
+        this.directionalLight.position.set(0, 0, 1)
+        this.scene.add( this.directionalLight );
+
+        
+        // Rectangle Lights
         this.initRectLights();
 
         // Physics
