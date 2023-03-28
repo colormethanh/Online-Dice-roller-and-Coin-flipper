@@ -82,8 +82,8 @@ export default class scenenInit {
             antialias: true,
         });
         this.renderer.shadowMap.enabled = true;
-        //Base value
-        this.renderer.setPixelRatio( window.devicePixelRatio * .50 );
+        
+        this.renderer.setPixelRatio( window.devicePixelRatio * .8);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1;
@@ -94,6 +94,7 @@ export default class scenenInit {
         
         // Helpers
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.enable = false;
         this.stats = Stats();
         document.body.appendChild(this.stats.dom);
 
@@ -101,8 +102,8 @@ export default class scenenInit {
         this.topLight = new THREE.PointLight(this.topLightColor, .2);
         this.topLight.position.set(0, 15, 20);
         this.topLight.castShadow = true;
-        this.topLight.shadow.mapSize.width = 2048 / 2;
-        this.topLight.shadow.mapSize.height = 2048 / 2;
+        this.topLight.shadow.mapSize.width = 2048 / 3;
+        this.topLight.shadow.mapSize.height = 2048 / 3;
         this.scene.add(this.topLight);
         const pointLightHelper = new THREE.PointLightHelper(this.topLight, 1);
         this.scene.add(pointLightHelper);
@@ -214,23 +215,8 @@ export default class scenenInit {
     }
 
     createCoin() {
-    
         let coinLoader = new GLTFLoader();
     
-        const mesh = new THREE.Mesh(
-            new THREE.CylinderGeometry(), 
-            new THREE.MeshNormalMaterial()
-        );
-    
-        const body = new CANNON.Body({
-            mass: 1,
-            shape: new CANNON.Cylinder()
-        })
-
-        this.coin.mesh = mesh;
-        this.coin.body = body;
-    
-
         coinLoader.load(glb, (glb) => {
             const mesh = glb.scene; 
 
@@ -260,6 +246,8 @@ export default class scenenInit {
             
             
             this.addCoinEvents();
+
+            console.log("Number of Triangles :", this.renderer.info.render.triangles);
         });
     }
 
@@ -406,13 +394,24 @@ export default class scenenInit {
     }
 
     cameraUp() {
-        gsap.timeline()
-            .to(this.camera.position, { y: 9.5, z: 15, duration: 2}); 
+        gsap.to(this.camera.position, { y: 9.5, 
+                                        z: 15, 
+                                        duration: 2,
+                                        onUpdate: (camera = this.camera) => {
+                                            camera.lookAt(0,0,0);
+                                        }    
+                                    });
     }
 
     cameraDown() {
-        gsap.timeline()
-            .to(this.camera.position, {x: this.cameraX, y: this.cameraY, z:this.cameraZ, duration: 2});
+        gsap.to(this.camera.position, { x:this.cameraX, 
+                                        y: this.cameraY, 
+                                        z:this.cameraZ, 
+                                        duration: 2,
+                                        onUpdate: (camera = this.camera) =>{
+                                            camera.lookAt(0,0,0);
+                                        }
+                                    })
     }
 
     animate() {
@@ -430,10 +429,16 @@ export default class scenenInit {
         }
 
         if (this.state == "select") {
-            this.coin.mesh.rotation.y += .01;
-            this.coin.mesh.rotation.x += .01;
-            this.dice.mesh.rotation.y += .01;
-            this.dice.mesh.rotation.x += .01;
+
+            if (this.dice.mesh !== undefined) {
+                this.dice.mesh.rotation.y += .01;
+                this.dice.mesh.rotation.x += .01;
+            }
+
+            if (this.coin.mesh !== undefined) {
+                this.coin.mesh.rotation.y += .01;
+                this.coin.mesh.rotation.x += .01;
+            }
         }
         
 
