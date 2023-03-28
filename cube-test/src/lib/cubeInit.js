@@ -6,7 +6,7 @@ const cubeSize =  2.5;
 
 export const diceParam = {
     boxSize: cubeSize,
-    segments: 40,
+    segments: 20,
     edgeRadius: cubeSize * .09,
     notchRadius: cubeSize * .12,
     notchDepth: cubeSize * .1,

@@ -80,9 +80,11 @@ export default class scenenInit {
         // Renderer
         this.renderer = new THREE.WebGLRenderer({
             canvas: document.getElementById(this.canvasId),
-            antialias: true,
+            antialias: false,
         });
         this.renderer.shadowMap.enabled = true;
+        //Base value
+        this.renderer.setPixelRatio( window.devicePixelRatio * .5 );
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1;
@@ -236,7 +238,6 @@ export default class scenenInit {
             mesh.traverse((child) => {
                 if (child instanceof THREE.Mesh) {
                     child.castShadow = true;
-                    // child.material.color.set(0x464646);
                     child.material.color.set(0xfbcb08);
                     child.material.metalness = 0;
                     child.material.roughness = 0.2;
