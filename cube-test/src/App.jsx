@@ -106,7 +106,6 @@ function App() {
                 <button  onClick={flipCoin}>
                     Flip Coin
                 </button>
-                <br></br>
                 <button onClick={selectDice}>
                     Select Dice 
                 </button>
