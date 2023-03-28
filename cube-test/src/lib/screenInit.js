@@ -97,7 +97,7 @@ export default class scenenInit {
         document.body.appendChild(this.stats.dom);
 
         // Lights
-        this.topLight = new THREE.PointLight(this.topLightColor, .1);
+        this.topLight = new THREE.PointLight(this.topLightColor, .2);
         this.topLight.position.set(0, 15, 20);
         this.topLight.castShadow = true;
         this.topLight.shadow.mapSize.width = 2048;
