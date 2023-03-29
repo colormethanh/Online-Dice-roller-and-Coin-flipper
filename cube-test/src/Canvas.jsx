@@ -6,8 +6,8 @@ import Screen from './Screen'
 
 
 export default function Canvas() {
-    
     const [scene, setScene] = useState();
+    const [sceneState, setSceneState] = useState();
 
     useEffect(() => {
         const scene = new scenenInit('myCanvas');
@@ -15,9 +15,9 @@ export default function Canvas() {
         scene.initialize();
         scene.createCoin();
         scene.createDice();
-        // scene.throwDice();
-        // scene.flipCoin();
         scene.animate();
+        setSceneState(scene.state);
+        console.log("scene state is " + props.sceneState);
 
 
         const gui = new GUI();
@@ -59,27 +59,28 @@ export default function Canvas() {
                     scene.cameraDown();
                 }
             })
+        customFunctionFolder
+            .add(customParams, 'function')
+            .name('Throw Dice')
+            .onChange((value) => {
+                if (value == true) {
+                    scene.throwDice();
+                }
+            })
+        customFunctionFolder
+            .add(customParams, 'function')
+            .name('Flip coin')
+            .onChange((value) => {
+                if (value == true) {
+                    scene.flipCoin();
+                }
+            })
 
         // Destory gui to prevent multiple stale ui from being displayed 
         return() => {
             gui.destroy();
         };
     }, []);
-
-    const throwDice = () => {
-        console.log("Throwing Dice");
-        scene.throwDice();
-    }
-
-    const flipCoin = () => {
-        console.log("Flipping Coin");
-        scene.flipCoin();
-    }
-
-    const selectCoin = () => {
-        scene.removeDice();
-        scene.selectCoin();
-    }
 
     const selectDice = () => {
         scene.removeCoin();
@@ -97,7 +98,7 @@ export default function Canvas() {
     return(
         <div>
             <canvas id="myCanvas" />
-            <Screen scene={scene} />
+            <Screen scene={scene} sceneState={sceneState} setSceneState={setSceneState} />
         </div>
     )
 }
