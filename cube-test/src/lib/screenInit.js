@@ -25,7 +25,7 @@ export default class scenenInit {
 
         this.physicsWorld = undefined;
 
-        this.state = "select"
+        this.state = "select";
 
         // Objects
         this.dice = {
@@ -141,7 +141,7 @@ export default class scenenInit {
         this.renderer.render(this.scene, this.camera);
     }
 
-    // displayStates 
+    // State Changes
     emptyState() {
         this.removeDice();
         this.removeCoin();
@@ -152,6 +152,27 @@ export default class scenenInit {
 
         this.dice.mesh.position.set(4, 0, -5);
         this.coin.mesh.position.set(-4, 0, -5);
+    }
+
+    selectDice() {
+        this.state = "dice"
+        this.dice.body.velocity.setZero();
+        this.dice.body.angularVelocity.setZero();
+
+        this.dice.body.position = new CANNON.Vec3(0, 15, 0);
+        this.dice.mesh.position.copy(this.dice.body.position);
+
+        this.dice.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
+    }
+
+    selectCoin() {
+        this.state = "coin"
+        this.coin.body.velocity.setZero();
+        this.coin.body.angularVelocity.setZero();
+
+        this.coin.body.position = new CANNON.Vec3(0, 15, 0);
+        this.coin.mesh.position.copy(this.coin.body.position);
+        this.coin.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
     }
 
     // Object Creations
@@ -378,27 +399,6 @@ export default class scenenInit {
 
         this.coin.body.position = new CANNON.Vec3(0, 0, -100);
         this.coin.mesh.position.copy(this.coin.body.position);
-    }
-
-    selectDice() {
-        this.state = "dice"
-        this.dice.body.velocity.setZero();
-        this.dice.body.angularVelocity.setZero();
-
-        this.dice.body.position = new CANNON.Vec3(0, 15, 0);
-        this.dice.mesh.position.copy(this.dice.body.position);
-
-        this.dice.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
-    }
-
-    selectCoin() {
-        this.state = "coin"
-        this.coin.body.velocity.setZero();
-        this.coin.body.angularVelocity.setZero();
-
-        this.coin.body.position = new CANNON.Vec3(0, 15, 0);
-        this.coin.mesh.position.copy(this.coin.body.position);
-        this.coin.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
     }
 
     cameraUp() {

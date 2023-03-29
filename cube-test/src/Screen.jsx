@@ -61,19 +61,27 @@ export default function Screen(props) {
     const selectCoin = () => {
         scene.removeDice();
         scene.selectCoin();
+        props.setSceneState(scene.state);
+        console.log("scene state is " + props.sceneState);
     }
 
     const selectDice = () => {
         scene.removeCoin();
         scene.selectDice();
+        props.setSceneState(scene.state);
+        console.log("scene state is " + props.sceneState);
     }
 
     const emptyState = () => {
         scene.emptyState();
+        props.setSceneState(scene.state);
+        console.log("scene state is " + props.sceneState);
     }
 
     const selectState = () => {
         scene.selectState();
+        props.setSceneState(scene.state);
+        console.log("scene state is " + props.sceneState);
     }
 
     return (
