@@ -116,9 +116,9 @@ export default function Screen(props) {
                 <SideBarItem name={"Load Coin"} id={"item3"} isVisable={isVisable} onClick={selectCoin} order={3} />
                 <SideBarItem name={"Credits"} id={"item4"} isVisable={isVisable} order={5} />
             </div>
-            <div className='center-item'>head</div>
+            <div className={isFlippable ? 'center-item' : 'center-item hidden'} id="results">head</div>
             <div className='button-wrapper' id='flip-btn'>
-                <div className='button-container' onClick={handleFlip} onMouseEnter={setState}>{ props.sceneState !== "select" ? (props.sceneState === 'dice' ? 'roll ' + props.sceneState: 'flip ' + props.sceneState ) : props.sceneState}</div>
+                <div className='button-container' onClick={handleFlip} onMouseEnter={setState}>{ props.sceneState !== "select" ? (props.sceneState === 'dice' ? 'roll ' + props.sceneState: 'flip ' + props.sceneState ) : "Select from above"}</div>
             </div>
         </div>
     )

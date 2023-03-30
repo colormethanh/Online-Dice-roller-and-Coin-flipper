@@ -69,6 +69,11 @@ export default class scenenInit {
         this.recLightGreen = undefined;
         this.recLightBlue = undefined;
         this.rectLightWhite = undefined;
+
+        // Results
+        this.results = document.querySelector('#results');
+
+
     }
 
     initialize() {
@@ -124,9 +129,9 @@ export default class scenenInit {
         // Lights
         this.topLight = new THREE.PointLight(this.topLightColor, 0);
         this.topLight.position.set(0, 24, 2);
-        this.topLight.castShadow = true;
-        this.topLight.shadow.mapSize.width = 2048;
-        this.topLight.shadow.mapSize.height = 2048;
+        // this.topLight.castShadow = true;
+        // this.topLight.shadow.mapSize.width = 2048;
+        // this.topLight.shadow.mapSize.height = 2048;
         this.scene.add(this.topLight);
         const pointLightHelper = new THREE.PointLightHelper(this.topLight, 1);
         this.scene.add(pointLightHelper);
@@ -161,7 +166,7 @@ export default class scenenInit {
 
         // GSAP configs
         gsap.config({
-            units: {height: '%', width: '%'}
+            units: {height: '%', width: '%', fontSize: 'rem'}
           });
 
         // if window resizes
@@ -192,30 +197,34 @@ export default class scenenInit {
 
     selectState() {
         this.state = "select";
+        this.resetResults();
 
         this.dice.mesh.position.set(4, 20, -5);
         this.coin.mesh.position.set(-4, 20, -5);
 
         const tl = gsap.timeline();
-        gsap.to("#flip-btn", {height: 0, width: 0, duration: 2});
-        tl.to(this.dice.mesh.position, {duration: 3, y: 0, delay:.5, ease:'circ'});
-        tl.to(this.coin.mesh.position, {duration: 3, y:0, delay:.5, ease:'circ'}, 0);
-        gsap.to(this.camera.position, { x:this.cameraX, 
+        tl.to(this.topLight, {intensity: 0, duration: 1});
+        tl.to("#flip-btn", {width: 0, duration: 2}, 1);
+        tl.to(this.dice.mesh.position, {duration: 3, y: 0, delay:.5, ease:'circ'}, 1);
+        tl.to(this.coin.mesh.position, {duration: 3, y:0, delay:.5, ease:'circ'}, 1);
+        tl.to(this.camera.position, { x:this.cameraX, 
             y: this.cameraY, 
             z: this.cameraZ, 
             duration: 2,
             onUpdate: (camera = this.camera) =>{
                 camera.lookAt(0,0,0);
             }
-        },)
+        }, 1)
 
     }
 
     selectDice() {
         this.removeCoin();
+        this.resetResults();
         this.state = "dice";
         const tl = gsap.timeline();
-        tl.to("#flip-btn", {height: 0, width: 0, duration: 1});
+        tl.to("#flip-btn", {width: 0, duration: 1});
+        tl.to(this.topLight, {intensity: .2, duration:1});
         tl.to(this.camera.position, { y: 9.5, 
             z: 15, 
             duration: 2,
@@ -223,7 +232,7 @@ export default class scenenInit {
                 camera.lookAt(this.scene.position);
             }    
         });
-        tl.to("#flip-btn", {height: 100, width: 100, duration: 2}, 2);
+        tl.to("#flip-btn", {width: 100, duration: 2}, 2);
 
 
         this.dice.body.velocity.setZero();
@@ -236,10 +245,12 @@ export default class scenenInit {
     }
 
     selectCoin() {
-        this.state = "coin";
         this.removeDice();
+        this.resetResults();
+        this.state = "coin";
         const tl = gsap.timeline();
-        tl.to("#flip-btn", {height: 0, width: 0, duration: 1});
+        tl.to("#flip-btn", {width: 0, duration: 1});
+        tl.to(this.topLight, {intensity: .2, duration:1});
         tl.to(this.camera.position, { y: 9.5, 
             z: 15, 
             duration: 2,
@@ -247,7 +258,7 @@ export default class scenenInit {
                 camera.lookAt(this.scene.position);
             }    
         });
-        tl.to("#flip-btn", {height: 100, width: 100, duration: 2}, 2);
+        tl.to("#flip-btn", {width: 100, duration: 2}, 2);
 
 
         this.coin.body.velocity.setZero();
@@ -259,21 +270,21 @@ export default class scenenInit {
     }
 
     lightDice() {
-        console.log("lighting dice");
+        // console.log("lighting dice");
         const tl = gsap.timeline();
         this.spotLight.target = this.dice.mesh;
         tl.to(this.spotLight, {angle:.16, duration:1.5, ease: "slow(0.7, 0.7, false)"})
     }
 
     lightCoin() {
-        console.log("lighting coin");
+        // console.log("lighting coin");
         const tl = gsap.timeline();
         this.spotLight.target = this.coin.mesh;
         tl.to(this.spotLight, {angle: .16, duration:1.5, ease: "slow(0.7, 0.7, false)"});
     }
 
     lightOff() {
-        console.log("lighting off");
+        // console.log("lighting off");
         gsap.to(this.spotLight, {angle: 0, duration:1, ease: "slow(0.7, 0.7, false)"});
     }
 
@@ -400,20 +411,26 @@ export default class scenenInit {
             if (isZero(euler.z)) {
                 if (isZero(euler.x)) {
                     console.log("Landed on 1");
+                    this.showResults("1");
                 } else if (isHalfPi(euler.x)) {
                     console.log("landed on 4");
+                    this.showResults("4");
                 } else if (isMinusHalfPi(euler.x)) {
                     console.log("Landed on 3");
+                    this.showResults("3");
                 } else if (isPiOrMinusPi(euler.x)) {
                     console.log("landed on 6");
+                    this.showResults("6");
                 } else {
                     // Landed on edge
                     this.dice.body.allowSleep = true;
                 }
             } else if (isHalfPi(euler.z)) {
                 console.log("landed on 2");
+                this.showResults("2");
             } else if (isMinusHalfPi(euler.z)) {
                 console.log("Landed on 5");
+                this.showResults("5");
             } else {
                 // landed on edge
                 this.dice.body.allowSleep = true;
@@ -435,20 +452,30 @@ export default class scenenInit {
 
             if (isZero(euler.x)) {
                 console.log("HEADS!");
+                this.showResults("HEADS!");
             } else if (isPiOrMinusPi(euler.x)) {
                 console.log("TAILS!");
+                this.showResults("TAILS!")
             } else {
                 this.coin.body.allowSleep = true;
                 console.log("landed on side");
             }
             console.log(euler.z, euler.y, euler.x);
         })
+    }
 
+    showResults(result) {
+        this.results.innerHTML = result;
+    }
+
+    resetResults() {
+        this.results.innerHTML = "";
     }
 
     // Actions and Animations
     throwDice() {
         this.removeCoin();
+        this.resetResults();
         this.dice.body.velocity.setZero();
         this.dice.body.angularVelocity.setZero();
 
@@ -469,6 +496,7 @@ export default class scenenInit {
 
     flipCoin() {
         this.removeDice();
+        this.resetResults();
         this.coin.body.velocity.setZero();
         this.coin.body.angularVelocity.setZero();
 
@@ -490,7 +518,7 @@ export default class scenenInit {
         this.dice.body.velocity.setZero();
         this.dice.body.angularVelocity.setZero();
 
-        this.dice.body.position = new CANNON.Vec3(0, 0, -100);
+        this.dice.body.position = new CANNON.Vec3(0, 0, -50);
         this.dice.mesh.position.copy(this.dice.body.position);
     }
 
@@ -498,7 +526,7 @@ export default class scenenInit {
         this.coin.body.velocity.setZero();
         this.coin.body.angularVelocity.setZero();
 
-        this.coin.body.position = new CANNON.Vec3(0, 0, -100);
+        this.coin.body.position = new CANNON.Vec3(0, 0, -50);
         this.coin.mesh.position.copy(this.coin.body.position);
     }
 
@@ -526,8 +554,12 @@ export default class scenenInit {
 
     animate() {
         this.physicsWorld.fixedStep();
-
+        
+        
         if (this.state != "select") {
+
+            console.log("Coin: " + this.coin.body.sleepState);
+            console.log("Dice: " + this.dice.body.sleepState);
             if (this.dice.mesh !== undefined) {
                 this.dice.mesh.position.copy(this.dice.body.position);
                 this.dice.mesh.quaternion.copy(this.dice.body.quaternion);
@@ -575,7 +607,7 @@ export default class scenenInit {
         if (intersects.length > 0 && this.state === 'select') {
             this.intersected = intersects[0].object;
             const shape = this.intersected.userData.shape;
-            console.log(this.intersected.userData.shape);
+            // console.log(this.intersected.userData.shape);
 
             document.body.style.cursor = 'pointer';
 
@@ -587,7 +619,7 @@ export default class scenenInit {
             
         } else {
             this.intersected = null;
-            console.log("not intersected");
+            // console.log("not intersected");
             this.lightOff();
             document.body.style.cursor = 'default';
         }
@@ -603,17 +635,17 @@ export default class scenenInit {
         if (intersects.length > 0 && this.state === 'select') {
             this.intersected = intersects[0].object;
             const shape = this.intersected.userData.shape;
-            console.log("clicked on " + this.intersected.userData.shape);
+            // console.log("clicked on " + this.intersected.userData.shape);
 
             if (shape == "dice") {
                 this.selectDice();
             } else if (shape == "coin") {
                 this.selectCoin();
             }
-
-        } else {
-            console.log("clicked on nothing ");
         }
+        // } else {
+        //     console.log("clicked on nothing ");
+        // }
     }
 }
 
