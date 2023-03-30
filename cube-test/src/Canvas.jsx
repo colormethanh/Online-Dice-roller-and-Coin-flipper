@@ -13,21 +13,23 @@ export default function Canvas() {
         const scene = new scenenInit('myCanvas');
         setScene(scene);
         scene.initialize();
-        scene.createCoin();
-        scene.createDice();
+        // scene.createCoin();
+        // scene.createDice();
         scene.animate();
         setSceneState(scene.state);
-        console.log("scene state is " + props.sceneState);
 
 
         const gui = new GUI();
-
+        gui.close();
         const lightFolder = gui.addFolder('light');
         lightFolder.add(scene.topLight,'intensity' , 0, 1).name('topLight');
         lightFolder.add(scene.directionalLight, 'intensity',0,1).name('dirLight');
         lightFolder.add(scene.rectLightRed, 'intensity', 0, 20).name('rectLightR');
         lightFolder.add(scene.rectLightGreen, 'intensity', 0, 20).name('rectLightG');
         lightFolder.add(scene.rectLightBlue, 'intensity', 0, 20).name('rectLightB');
+        lightFolder.add(scene.spotLight, 'angle', 0, Math.PI / 3).name('spotlightAngle');
+        lightFolder.add(scene.spotLight.position, 'z', 0, 20).name('spotlightZ');
+
 
         const cameraFolder = gui.addFolder('camera');
         cameraFolder.add(scene.camera.position, 'x', -10, 50).name('Camera X');
@@ -36,9 +38,9 @@ export default function Canvas() {
         cameraFolder.add(scene.topLight.position, 'x', -25, 50).name('toplightX');
         cameraFolder.add(scene.topLight.position, 'y', -25, 50).name('toplightY');
         cameraFolder.add(scene.topLight.position, 'z', -25, 50).name('toplightZ');
+        
 
         const customFunctionFolder = gui.addFolder('custom Function');
-        customFunctionFolder.open();
         const customParams = {
             function: false,
         };
@@ -81,19 +83,6 @@ export default function Canvas() {
             gui.destroy();
         };
     }, []);
-
-    const selectDice = () => {
-        scene.removeCoin();
-        scene.selectDice();
-    }
-
-    const emptyState = () => {
-        scene.emptyState();
-    }
-
-    const selectState = () => {
-        scene.selectState();
-    }
     
     return(
         <div>

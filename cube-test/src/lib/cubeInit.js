@@ -6,7 +6,7 @@ const cubeSize =  2.5;
 
 export const diceParam = {
     boxSize: cubeSize,
-    segments: 20,
+    segments: 40,
     edgeRadius: cubeSize * .09,
     notchRadius: cubeSize * .12,
     notchDepth: cubeSize * .1,
@@ -133,7 +133,7 @@ function createInnerGeometry() {
     ], false);
 }
 
-export function createDiceMesh() {
+export function createDiceMesh(sceneObj) {
 
     const boxMaterialOuter = new THREE.MeshStandardMaterial({
         color: 0xeeeeee,
@@ -151,6 +151,10 @@ export function createDiceMesh() {
     outerMesh.castShadow = true;
     diceMesh.add(innerMesh, outerMesh);
 
+    outerMesh.userData = {shape: 'dice'}
+    innerMesh.userData = {shape: 'dice'}
+    sceneObj.push(outerMesh);
+    sceneObj.push(innerMesh);
     return diceMesh;
 }
 
