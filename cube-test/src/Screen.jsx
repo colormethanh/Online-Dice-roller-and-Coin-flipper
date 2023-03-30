@@ -118,7 +118,15 @@ export default function Screen(props) {
             </div>
             <div className={isFlippable ? 'center-item' : 'center-item hidden'} id="results">head</div>
             <div className='button-wrapper' id='flip-btn'>
-                <div className='button-container' onClick={handleFlip} onMouseEnter={setState}>{ props.sceneState !== "select" ? (props.sceneState === 'dice' ? 'roll ' + props.sceneState: 'flip ' + props.sceneState ) : "Select from above"}</div>
+                {/* Let's just pretend that the following code is not absolutely hideous */}
+                <div className='button-container' onClick={handleFlip} onMouseEnter={setState}>{ props.sceneState !== "select" ? 
+                                                                                                    (props.sceneState === 'dice' 
+                                                                                                        ? 'roll ' + props.sceneState 
+                                                                                                        : ( props.sceneState === "coin" ? 'flip ' + props.sceneState : "" )
+                                                                                                    )
+                                                                                                    : 
+                                                                                                    "Select from above"}
+                                                                                                    </div>
             </div>
         </div>
     )

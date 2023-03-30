@@ -15,7 +15,7 @@
   }
   /* grid-area: <name> | <row-start> / <column-start> / <row-end> / <column-end>; */
   .center-item {
-    grid-area: 3/4/4/8;
+    grid-area: 3/4/5/8;
     position: relative;
     justify-self: center;
     align-self: center;
@@ -40,6 +40,7 @@
     color: rgb(0, 0, 0, 0);
     cursor: pointer;
     transition: color 1s;
+    margin-left: .25rem;
   }
 
   #flip-btn {
@@ -72,50 +73,8 @@
     animation-timing-function: steps(2, end);
   }
   .button-container:hover {
-    color: black;
+    color: white;
   }
-
-  /* @keyframes glitch-text {
-    0% {
-        clip-path: var(--slice-4);
-        transform: translate(5px, 10px);
-      }
-      10% {
-        
-      }
-      20% {
-        clip-path: var(--slice-5);
-        transform: translate(20px, -10px);
-      }
-      30% {
-        
-      }
-      40% {
-        
-      }
-      50% {
-        clip-path: var(--slice-3);
-        transform: translate(10px, 10px);
-      }
-      60% {
-        
-      }
-      70% {
-        clip-path: var(--slice-4);
-        transform: translate(5px, 10px);
-        
-      }
-      80% {
-        
-      }
-      90% {
-        
-      }
-      100% {
-        clip-path: var(--slice-1);
-        transform: translate(0);
-      }
-  } */
 
   @keyframes glitch-button {
     0% {

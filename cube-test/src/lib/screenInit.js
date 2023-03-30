@@ -32,7 +32,7 @@ export default class scenenInit {
 
         this.physicsWorld = undefined;
 
-        this.state = "select";
+        this.state = "empty";
 
         // Objects
         this.dice = {
@@ -65,10 +65,9 @@ export default class scenenInit {
         // RectLights
         this.rectLightW = 8;
         this.rectLightH = 18;
-        this.recLightRed = undefined;
-        this.recLightGreen = undefined;
-        this.recLightBlue = undefined;
-        this.rectLightWhite = undefined;
+        this.rectLightRed = undefined;
+        this.rectLightGreen = undefined;
+        this.rectLightBlue = undefined;
 
         // Results
         this.results = document.querySelector('#results');
@@ -107,16 +106,6 @@ export default class scenenInit {
         this.raycaster = new THREE.Raycaster();
         this.pointer = new THREE.Vector2();
 
-        // Arrow helper for raycasting
-
-        // this.arrowHelper = new THREE.ArrowHelper(
-        //     new THREE.Vector3(),
-        //     new THREE.Vector3(),
-        //     0.25,
-        //     0xffff00
-        // )
-        // this.scene.add(this.arrowHelper)
-
         // Clock
         this.clock = new THREE.Clock();
         
@@ -129,9 +118,9 @@ export default class scenenInit {
         // Lights
         this.topLight = new THREE.PointLight(this.topLightColor, 0);
         this.topLight.position.set(0, 24, 2);
-        // this.topLight.castShadow = true;
-        // this.topLight.shadow.mapSize.width = 2048;
-        // this.topLight.shadow.mapSize.height = 2048;
+        this.topLight.castShadow = true;
+        this.topLight.shadow.mapSize.width = 2048;
+        this.topLight.shadow.mapSize.height = 2048;
         this.scene.add(this.topLight);
         const pointLightHelper = new THREE.PointLightHelper(this.topLight, 1);
         this.scene.add(pointLightHelper);
@@ -145,7 +134,6 @@ export default class scenenInit {
         // spotlight angle should grow to .16
         this.spotLight.angle = 0;
         this.spotLight.castShadow = true;
-        this.spotLight.shadow.focus = 1;
 
         this.scene.add( this.spotLight );
         
@@ -204,9 +192,19 @@ export default class scenenInit {
 
         const tl = gsap.timeline();
         tl.to(this.topLight, {intensity: 0, duration: 1});
+
+        if (this.rectLightBlue.intensity < 5) {
+            tl.to(this.rectLightBlue, {intensity: 5, duration: 3, ease: "bounce.inOut"}, 0);
+            tl.to(this.rectLightRed, {intensity: 5, duration: 3, ease: "bounce.in"}, 1);
+            tl.to(this.rectLightGreen, {intensity: 5, duration: 3, ease: "bounce.out"}, 2);
+            tl.to(this.dice.mesh.position, {duration: 3, y: 0, delay:.5, ease:'circ'}, 3);
+            tl.to(this.coin.mesh.position, {duration: 3, y:0, delay:.5, ease:'circ'}, 3);
+        } else {
+            tl.to(this.dice.mesh.position, {duration: 3, y: 0, delay:.5, ease:'circ'}, 0);
+            tl.to(this.coin.mesh.position, {duration: 3, y:0, delay:.5, ease:'circ'}, 0);
+        }
         tl.to("#flip-btn", {width: 0, duration: 2}, 1);
-        tl.to(this.dice.mesh.position, {duration: 3, y: 0, delay:.5, ease:'circ'}, 1);
-        tl.to(this.coin.mesh.position, {duration: 3, y:0, delay:.5, ease:'circ'}, 1);
+        
         tl.to(this.camera.position, { x:this.cameraX, 
             y: this.cameraY, 
             z: this.cameraZ, 
@@ -273,19 +271,20 @@ export default class scenenInit {
         // console.log("lighting dice");
         const tl = gsap.timeline();
         this.spotLight.target = this.dice.mesh;
-        tl.to(this.spotLight, {angle:.16, duration:1.5, ease: "slow(0.7, 0.7, false)"})
+        tl.to(this.spotLight, {angle:.16, duration:1.5, ease: "sine.out"})
     }
 
     lightCoin() {
         // console.log("lighting coin");
         const tl = gsap.timeline();
         this.spotLight.target = this.coin.mesh;
-        tl.to(this.spotLight, {angle: .16, duration:1.5, ease: "slow(0.7, 0.7, false)"});
+        tl.to(this.spotLight, {angle: .16, duration:1.5, ease: "sine.out"});
     }
 
     lightOff() {
         // console.log("lighting off");
-        gsap.to(this.spotLight, {angle: 0, duration:1, ease: "slow(0.7, 0.7, false)"});
+        gsap.to(this.spotLight, {angle: 0, duration:1, ease: "sine.out"});
+        this.spotLight.angle = 0;
     }
 
     // Object Creations
@@ -293,21 +292,21 @@ export default class scenenInit {
         RectAreaLightUniformsLib.init();
         const posX = Math.abs((this.rectLightH/2) - 7);
 
-        const rectLightRed = new THREE.RectAreaLight(0xff0000, 5, this.rectLightW, this.rectLightH);
+        const rectLightRed = new THREE.RectAreaLight(0xff0000, .3, this.rectLightW, this.rectLightH);
         this.rectLightRed = rectLightRed;
         this.rectLightRed.position.set(0, posX, -15);
         this.rectLightRed.lookAt(new THREE.Vector3(0, posX, 10));
         this.scene.add(rectLightRed);
         this.scene.add( new RectAreaLightHelper( rectLightRed ) );
 
-        const rectLightGreen = new THREE.RectAreaLight(0x00ff00, 5, this.rectLightW, this.rectLightH);
+        const rectLightGreen = new THREE.RectAreaLight(0x00ff00, .3, this.rectLightW, this.rectLightH);
         this.rectLightGreen = rectLightGreen;
         this.rectLightGreen.position.set(10, posX, -12);
         this.rectLightGreen.lookAt(new THREE.Vector3(0, posX, 10));
         this.scene.add(rectLightGreen);
         this.scene.add( new RectAreaLightHelper(rectLightGreen));
 
-        const rectLightBlue = new THREE.RectAreaLight(0x0000ff, 5, this.rectLightW, this.rectLightH);
+        const rectLightBlue = new THREE.RectAreaLight(0x0000ff, .3, this.rectLightW, this.rectLightH);
         this.rectLightBlue = rectLightBlue;
         this.rectLightBlue.position.set(-10, posX, -12);
         this.rectLightBlue.lookAt(new THREE.Vector3(0, posX, 10));
@@ -343,7 +342,7 @@ export default class scenenInit {
         this.scene.add(diceMesh);
         this.dice.mesh = diceMesh;
         this.dice.mesh.userData={shape: "dice"}
-        this.dice.mesh.position.set(4, 0, -5);
+        this.dice.mesh.position.set(4, 0, -50);
         if (this.dice.body == undefined) {
             const diceBody = new CANNON.Body({
                 mass: 1,
@@ -375,7 +374,7 @@ export default class scenenInit {
             });
 
             mesh.scale.set(2, 2, 2);
-            mesh.position.set(-4, 0, -5);
+            mesh.position.set(-4, 0, -50);
             this.scene.add(mesh);
             this.coin.mesh = mesh;
             this.coin.userData = {shape: "coin"}
@@ -556,7 +555,7 @@ export default class scenenInit {
         this.physicsWorld.fixedStep();
         
         
-        if (this.state != "select") {
+        if (this.state === "coin" || this.state === "dice") {
 
             console.log("Coin: " + this.coin.body.sleepState);
             console.log("Dice: " + this.dice.body.sleepState);
@@ -603,23 +602,26 @@ export default class scenenInit {
         this.raycaster.setFromCamera(this.pointer, this.camera);
 
         const intersects = this.raycaster.intersectObjects(this.sceneObjs, false);
+        const shape = ""
 
         if (intersects.length > 0 && this.state === 'select') {
             this.intersected = intersects[0].object;
             const shape = this.intersected.userData.shape;
-            // console.log(this.intersected.userData.shape);
+            console.log(this.intersected.userData.shape);
 
             document.body.style.cursor = 'pointer';
-
+            
             if (shape == "dice") {
                 this.lightDice();
             } else if (shape == "coin") {
                 this.lightCoin();
+            } else {
+                this.lightOff();
             }
             
         } else {
             this.intersected = null;
-            // console.log("not intersected");
+            console.log("not intersected");
             this.lightOff();
             document.body.style.cursor = 'default';
         }

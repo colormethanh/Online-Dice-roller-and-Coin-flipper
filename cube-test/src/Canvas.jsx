@@ -13,8 +13,6 @@ export default function Canvas() {
         const scene = new scenenInit('myCanvas');
         setScene(scene);
         scene.initialize();
-        // scene.createCoin();
-        // scene.createDice();
         scene.animate();
         setSceneState(scene.state);
 
