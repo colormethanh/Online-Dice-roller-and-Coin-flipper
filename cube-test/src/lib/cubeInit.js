@@ -90,7 +90,7 @@ export function createDiceGeometry() {
             // cube face is left face
             position.x += notch([position.y + offset, position.z + offset]);
             position.x += notch([position.y + offset, position.z - offset]);
-            position.x += notch([position.y, position.x]);
+            position.x += notch([position.y, position.z]);
             position.x += notch([position.y - offset, position.z + offset]);
             position.x += notch([position.y - offset, position.z - offset]);
         } else if (position.y === -(diceParam.boxSize / 2)) {

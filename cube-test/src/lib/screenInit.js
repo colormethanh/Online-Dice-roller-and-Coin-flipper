@@ -9,10 +9,6 @@ import gsap from 'gsap'
 import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
 
-
-
-
-
 export default class scenenInit {
     constructor(canvasId) {
         // Core three.js compoenents
@@ -65,14 +61,13 @@ export default class scenenInit {
         // RectLights
         this.rectLightW = 8;
         this.rectLightH = 18;
+        this.rectYoffset = Math.abs((this.rectLightH/2) - 7);
         this.rectLightRed = undefined;
         this.rectLightGreen = undefined;
         this.rectLightBlue = undefined;
 
         // Results
         this.results = document.querySelector('#results');
-
-
     }
 
     initialize() {
@@ -110,10 +105,10 @@ export default class scenenInit {
         this.clock = new THREE.Clock();
         
         // Helpers
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.controls.enable = false;
-        this.stats = Stats();
-        document.body.appendChild(this.stats.dom);
+        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        // this.controls.enable = false;
+        // this.stats = Stats();
+        // document.body.appendChild(this.stats.dom);
 
         // Lights
         this.topLight = new THREE.PointLight(this.topLightColor, 0);
@@ -158,9 +153,9 @@ export default class scenenInit {
           });
 
         // if window resizes
-        document.addEventListener('mousemove', (e) => this.onPointerMove(e), false);
-        document.addEventListener('click', (e) => this.onClick(e), false);
-        window.addEventListener('resize', () => this.onWindowResize(), false);
+        document.addEventListener('mousemove', (e) => this.onPointerMove(e), {passive:false});
+        document.addEventListener('click', (e) => this.onPointerClick(e), {passive:false});
+        window.addEventListener('resize', () => this.onWindowResize(), {passive:false});
     }
 
     initPysics() {
@@ -178,12 +173,28 @@ export default class scenenInit {
     }
 
     // State Changes
-    emptyState() {
-        this.removeDice();
-        this.removeCoin();
+    clearState() {
+        this.state = "clear";
+        this.resetResults();  
+        const tl = gsap.timeline();
+
+        tl.to(this.dice.mesh.position, {y: 20, duration: 2, onComplete: () => {
+            this.removeDice();
+        }})
+        tl.to(this.coin.mesh.position, {y: 20, duration: 2, onComplete: () => {
+            this.removeCoin();
+        }}, 0)
+        tl.to(this.rectLightGreen, {intensity: 0, duration: 3, ease: "bounce.inOut"}, 0);
+        tl.to(this.rectLightRed, {intensity: 0, duration: 3, ease: "bounce.in"}, 1);
+        tl.to(this.rectLightBlue, {intensity: 0, duration: 3, ease: "bounce.out"}, 2);
+        tl.to(this.topLight, {intensity: 0, duration: 1, onComplete: () => {
+            this.cameraDown();
+        }}, 0)
+        
     }
 
     selectState() {
+        console.log("select State initiated");
         this.state = "select";
         this.resetResults();
 
@@ -194,11 +205,11 @@ export default class scenenInit {
         tl.to(this.topLight, {intensity: 0, duration: 1});
 
         if (this.rectLightBlue.intensity < 5) {
-            tl.to(this.rectLightBlue, {intensity: 5, duration: 3, ease: "bounce.inOut"}, 0);
-            tl.to(this.rectLightRed, {intensity: 5, duration: 3, ease: "bounce.in"}, 1);
-            tl.to(this.rectLightGreen, {intensity: 5, duration: 3, ease: "bounce.out"}, 2);
-            tl.to(this.dice.mesh.position, {duration: 3, y: 0, delay:.5, ease:'circ'}, 3);
-            tl.to(this.coin.mesh.position, {duration: 3, y:0, delay:.5, ease:'circ'}, 3);
+            tl.to(this.rectLightBlue, {intensity: 5, duration: 3, ease: "bounce.inOut", delay: 2}, 0);
+            tl.to(this.rectLightRed, {intensity: 5, duration: 3, ease: "bounce.in", delay: 2.5}, 1);
+            tl.to(this.rectLightGreen, {intensity: 5, duration: 3, ease: "bounce.out", delay: 2.5}, 2);
+            tl.to(this.dice.mesh.position, {duration: 4, y: 0, delay:.5, ease:'circ', delay: 2.5}, 3);
+            tl.to(this.coin.mesh.position, {duration: 4, y:0, delay:.5, ease:'circ', delay: 2.5}, 3);
         } else {
             tl.to(this.dice.mesh.position, {duration: 3, y: 0, delay:.5, ease:'circ'}, 0);
             tl.to(this.coin.mesh.position, {duration: 3, y:0, delay:.5, ease:'circ'}, 0);
@@ -217,11 +228,24 @@ export default class scenenInit {
     }
 
     selectDice() {
+        console.log("Changing state")
+        this.state = "dice";
+        console.log("current state" + this.state)
         this.removeCoin();
         this.resetResults();
-        this.state = "dice";
+        this.dice.body.velocity.setZero();
+        this.dice.body.angularVelocity.setZero();
+        this.dice.body.position = new CANNON.Vec3(0, 20, -5);
+        this.dice.mesh.position.copy(this.dice.body.position);
         const tl = gsap.timeline();
-        tl.to("#flip-btn", {width: 0, duration: 1});
+
+        if(this.rectLightBlue.intensity < 5) {
+            tl.to(this.rectLightBlue, {intensity: 5, duration: 3, ease: "bounce.inOut"}, 0);
+            tl.to(this.rectLightRed, {intensity: 5, duration: 3, ease: "bounce.in"}, 1);
+            tl.to(this.rectLightGreen, {intensity: 5, duration: 3, ease: "bounce.out"}, 2);
+        }
+
+        tl.to("#flip-btn", {width: 0, duration: 1}, 1);
         tl.to(this.topLight, {intensity: .2, duration:1});
         tl.to(this.camera.position, { y: 9.5, 
             z: 15, 
@@ -229,25 +253,31 @@ export default class scenenInit {
             onUpdate: (camera = this.camera) => {
                 camera.lookAt(this.scene.position);
             }    
-        });
-        tl.to("#flip-btn", {width: 100, duration: 2}, 2);
+        }, (this.rectLightBlue.intensity < 5 ? 3 : 1));
+        tl.to("#flip-btn", {width: 100, duration: 2, onComplete: () => {
+            this.dice.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
+        }}, (this.rectLightBlue.intensity < 5 ? 2 : 3));
 
-
-        this.dice.body.velocity.setZero();
-        this.dice.body.angularVelocity.setZero();
-
-        this.dice.body.position = new CANNON.Vec3(0, 15, -5);
-        this.dice.mesh.position.copy(this.dice.body.position);
-
-        this.dice.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
     }
 
     selectCoin() {
+        console.log("changing state")
+        this.state = "coin";
+        console.log("current state " + this.state)
         this.removeDice();
         this.resetResults();
-        this.state = "coin";
+        this.coin.body.velocity.setZero();
+        this.coin.body.angularVelocity.setZero();
+        this.coin.body.position = new CANNON.Vec3(0, 20, -5);
+        this.coin.mesh.position.copy(this.coin.body.position);
+
         const tl = gsap.timeline();
-        tl.to("#flip-btn", {width: 0, duration: 1});
+        if(this.rectLightBlue.intensity < 5) {
+            tl.to(this.rectLightBlue, {intensity: 5, duration: 3, ease: "bounce.inOut"}, 0);
+            tl.to(this.rectLightRed, {intensity: 5, duration: 3, ease: "bounce.in"}, 1);
+            tl.to(this.rectLightGreen, {intensity: 5, duration: 3, ease: "bounce.out"}, 2);
+        }
+        tl.to("#flip-btn", {width: 0, duration: 1}, 1);
         tl.to(this.topLight, {intensity: .2, duration:1});
         tl.to(this.camera.position, { y: 9.5, 
             z: 15, 
@@ -255,64 +285,57 @@ export default class scenenInit {
             onUpdate: (camera = this.camera) => {
                 camera.lookAt(this.scene.position);
             }    
-        });
-        tl.to("#flip-btn", {width: 100, duration: 2}, 2);
+        }, (this.rectLightBlue.intensity < 5 ? 3 : 1));
+        tl.to("#flip-btn", {width: 100, duration: 2, onComplete: () => {
+            this.coin.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
+        }}, (this.rectLightBlue.intensity < 5 ? 2 : 3));
 
-
-        this.coin.body.velocity.setZero();
-        this.coin.body.angularVelocity.setZero();
-
-        this.coin.body.position = new CANNON.Vec3(0, 15, -5);
-        this.coin.mesh.position.copy(this.coin.body.position);
-        this.coin.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
     }
 
     lightDice() {
         // console.log("lighting dice");
-        const tl = gsap.timeline();
+        
         this.spotLight.target = this.dice.mesh;
-        tl.to(this.spotLight, {angle:.16, duration:1.5, ease: "sine.out"})
+        gsap.to(this.spotLight, {angle:.16, duration:1.5, ease: "sine.out"})
     }
 
     lightCoin() {
         // console.log("lighting coin");
-        const tl = gsap.timeline();
+        
         this.spotLight.target = this.coin.mesh;
-        tl.to(this.spotLight, {angle: .16, duration:1.5, ease: "sine.out"});
+        gsap.to(this.spotLight, {angle: .16, duration:1.5, ease: "sine.out"});
     }
 
     lightOff() {
         // console.log("lighting off");
-        gsap.to(this.spotLight, {angle: 0, duration:1, ease: "sine.out"});
-        this.spotLight.angle = 0;
+        gsap.to(this.spotLight, {angle: 0, duration:1.5, ease: "sine.out"});
+        
     }
 
     // Object Creations
     initRectLights() {
         RectAreaLightUniformsLib.init();
-        const posX = Math.abs((this.rectLightH/2) - 7);
 
-        const rectLightRed = new THREE.RectAreaLight(0xff0000, .3, this.rectLightW, this.rectLightH);
+        const rectLightRed = new THREE.RectAreaLight(0xff0000, 0, this.rectLightW, this.rectLightH);
         this.rectLightRed = rectLightRed;
-        this.rectLightRed.position.set(0, posX, -15);
-        this.rectLightRed.lookAt(new THREE.Vector3(0, posX, 10));
+        this.rectLightRed.position.set(0, this.rectYoffset, -15);
+        this.rectLightRed.lookAt(new THREE.Vector3(0, this.rectYoffset, 10));
         this.scene.add(rectLightRed);
         this.scene.add( new RectAreaLightHelper( rectLightRed ) );
 
-        const rectLightGreen = new THREE.RectAreaLight(0x00ff00, .3, this.rectLightW, this.rectLightH);
+        const rectLightGreen = new THREE.RectAreaLight(0x00ff00, 0, this.rectLightW, this.rectLightH);
         this.rectLightGreen = rectLightGreen;
-        this.rectLightGreen.position.set(10, posX, -12);
-        this.rectLightGreen.lookAt(new THREE.Vector3(0, posX, 10));
+        this.rectLightGreen.position.set(10, this.rectYoffset, -12);
+        this.rectLightGreen.lookAt(new THREE.Vector3(0, this.rectYoffset, 10));
         this.scene.add(rectLightGreen);
         this.scene.add( new RectAreaLightHelper(rectLightGreen));
 
-        const rectLightBlue = new THREE.RectAreaLight(0x0000ff, .3, this.rectLightW, this.rectLightH);
+        const rectLightBlue = new THREE.RectAreaLight(0x0000ff, 0, this.rectLightW, this.rectLightH);
         this.rectLightBlue = rectLightBlue;
-        this.rectLightBlue.position.set(-10, posX, -12);
-        this.rectLightBlue.lookAt(new THREE.Vector3(0, posX, 10));
+        this.rectLightBlue.position.set(-10, this.rectYoffset, -12);
+        this.rectLightBlue.lookAt(new THREE.Vector3(0, this.rectYoffset, 10));
         this.scene.add(rectLightBlue);
         this.scene.add( new RectAreaLightHelper(rectLightBlue));
-
     }
 
     createFloor() {
@@ -342,7 +365,7 @@ export default class scenenInit {
         this.scene.add(diceMesh);
         this.dice.mesh = diceMesh;
         this.dice.mesh.userData={shape: "dice"}
-        this.dice.mesh.position.set(4, 0, -50);
+        this.dice.mesh.position.set(4, 50, -50);
         if (this.dice.body == undefined) {
             const diceBody = new CANNON.Body({
                 mass: 1,
@@ -374,7 +397,7 @@ export default class scenenInit {
             });
 
             mesh.scale.set(2, 2, 2);
-            mesh.position.set(-4, 0, -50);
+            mesh.position.set(-4, 50, -50);
             this.scene.add(mesh);
             this.coin.mesh = mesh;
             this.coin.userData = {shape: "coin"}
@@ -409,26 +432,26 @@ export default class scenenInit {
             
             if (isZero(euler.z)) {
                 if (isZero(euler.x)) {
-                    console.log("Landed on 1");
+                    // console.log("Landed on 1");
                     this.showResults("1");
                 } else if (isHalfPi(euler.x)) {
-                    console.log("landed on 4");
+                    // console.log("landed on 4");
                     this.showResults("4");
                 } else if (isMinusHalfPi(euler.x)) {
-                    console.log("Landed on 3");
+                    // console.log("Landed on 3");
                     this.showResults("3");
                 } else if (isPiOrMinusPi(euler.x)) {
-                    console.log("landed on 6");
+                    // console.log("landed on 6");
                     this.showResults("6");
                 } else {
                     // Landed on edge
                     this.dice.body.allowSleep = true;
                 }
             } else if (isHalfPi(euler.z)) {
-                console.log("landed on 2");
+                // console.log("landed on 2");
                 this.showResults("2");
             } else if (isMinusHalfPi(euler.z)) {
-                console.log("Landed on 5");
+                // console.log("Landed on 5");
                 this.showResults("5");
             } else {
                 // landed on edge
@@ -442,7 +465,7 @@ export default class scenenInit {
             this.coin.body.allowSleep = false;
             const euler = new CANNON.Vec3();
             e.target.quaternion.toEuler(euler);
-            console.log("coin event");
+            // console.log("coin event");
 
             const eps = .1;
             
@@ -450,16 +473,14 @@ export default class scenenInit {
             let isPiOrMinusPi = (angle) => (Math.abs( Math.PI - angle) < eps || Math.abs(Math.PI + angle) < eps);
 
             if (isZero(euler.x)) {
-                console.log("HEADS!");
-                this.showResults("HEADS!");
+                // console.log("TAILS!");
+                this.showResults("   TAILS!")
             } else if (isPiOrMinusPi(euler.x)) {
-                console.log("TAILS!");
-                this.showResults("TAILS!")
+                // console.log("HEADS!");
+                this.showResults("   HEADS!");
             } else {
                 this.coin.body.allowSleep = true;
-                console.log("landed on side");
             }
-            console.log(euler.z, euler.y, euler.x);
         })
     }
 
@@ -517,6 +538,7 @@ export default class scenenInit {
         this.dice.body.velocity.setZero();
         this.dice.body.angularVelocity.setZero();
 
+
         this.dice.body.position = new CANNON.Vec3(0, 0, -50);
         this.dice.mesh.position.copy(this.dice.body.position);
     }
@@ -557,8 +579,6 @@ export default class scenenInit {
         
         if (this.state === "coin" || this.state === "dice") {
 
-            console.log("Coin: " + this.coin.body.sleepState);
-            console.log("Dice: " + this.dice.body.sleepState);
             if (this.dice.mesh !== undefined) {
                 this.dice.mesh.position.copy(this.dice.body.position);
                 this.dice.mesh.quaternion.copy(this.dice.body.quaternion);
@@ -585,8 +605,8 @@ export default class scenenInit {
 
         window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
-        this.stats.update();
-        this.controls.update();
+        // this.stats.update();
+        // this.controls.update();
     }
 
     // Misc.
@@ -602,12 +622,11 @@ export default class scenenInit {
         this.raycaster.setFromCamera(this.pointer, this.camera);
 
         const intersects = this.raycaster.intersectObjects(this.sceneObjs, false);
-        const shape = ""
 
         if (intersects.length > 0 && this.state === 'select') {
             this.intersected = intersects[0].object;
             const shape = this.intersected.userData.shape;
-            console.log(this.intersected.userData.shape);
+            // console.log(this.intersected.userData.shape);
 
             document.body.style.cursor = 'pointer';
             
@@ -621,33 +640,44 @@ export default class scenenInit {
             
         } else {
             this.intersected = null;
-            console.log("not intersected");
+            // console.log("not intersected");
             this.lightOff();
             document.body.style.cursor = 'default';
         }
     }
 
-    onClick(e) {
-        this.pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
-		this.pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
-        this.raycaster.setFromCamera(this.pointer, this.camera);
+    onPointerClick(e) {
+        console.log("Checking state")
+        console.log(this.state)
+        if (this.state === "select") {
+            console.log("conditional passed state = " + this.state)
+        
+            this.pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+            this.pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+            this.raycaster.setFromCamera(this.pointer, this.camera);
 
-        const intersects = this.raycaster.intersectObjects(this.sceneObjs, false);
+            const intersects = this.raycaster.intersectObjects(this.sceneObjs, false);
 
-        if (intersects.length > 0 && this.state === 'select') {
-            this.intersected = intersects[0].object;
-            const shape = this.intersected.userData.shape;
-            // console.log("clicked on " + this.intersected.userData.shape);
+            if (intersects.length > 0) {
+                
+                this.intersected = intersects[0].object;
+                const shape = this.intersected.userData.shape;
+                // console.log("clicked on " + this.intersected.userData.shape);
 
-            if (shape == "dice") {
-                this.selectDice();
-            } else if (shape == "coin") {
-                this.selectCoin();
-            }
+                if (shape === "dice") {
+                    console.log('selecting Dice');
+                    this.selectDice();
+                } else if (shape === "coin") {
+                    console.log('selecting Coin');
+                    this.selectCoin();
+                } else {
+                    console.log("No selection")
+                    return;
+                }
+            } 
         }
-        // } else {
-        //     console.log("clicked on nothing ");
-        // }
+
+        return;
     }
 }
 
