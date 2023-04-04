@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './App.css'
-import scenenInit from './lib/screenInit';
+import canvasInit from './lib/canvasInit';
 import Screen from './Screen'
 
 // import { GUI } from 'dat.gui';
@@ -10,7 +10,7 @@ export default function Canvas() {
     const [sceneState, setSceneState] = useState();
 
     useEffect(() => {
-        const scene = new scenenInit('myCanvas');
+        const scene = new canvasInit('myCanvas');
         setScene(scene);
         scene.initialize();
         scene.animate();

@@ -10,7 +10,7 @@ import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUnifo
 // import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 // import Stats from 'three/examples/jsm/libs/stats.module';
 
-export default class scenenInit {
+export default class canvasInit {
     constructor(canvasId) {
         // Core three.js compoenents
         this.scene = undefined;
@@ -629,6 +629,7 @@ export default class scenenInit {
     }
 
     onPointerClick(e) {
+        console.log("check state: current state = " + this.state);
         if (this.state === "select") {
             this.pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
             this.pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;

@@ -87,6 +87,7 @@ export default function Screen(props) {
     const [isResetHover, setIsResetHover] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isFlippable, setIsFlippable] = useState(false);
+    const [hasEntered, setHasEntered] = useState(false);
 
     const scene=props.scene;
     
@@ -140,6 +141,12 @@ export default function Screen(props) {
         props.setSceneState(scene.state);
     }
 
+    const enter = () => {
+        scene.selectState();
+        setHasEntered(true);
+        props.setSceneState(scene.state);
+    }
+
     const setState = () => {
         props.setSceneState(scene.state);
     }
@@ -163,8 +170,7 @@ export default function Screen(props) {
                 </div>
             </div>
 
-
-            <div className={isLoading ? "enter-btn" : (props.sceneState === "empty" ? "enter-btn enter-btn-animate" : "enter-btn enter-btn-animate-out")} onClick = {props.sceneState != "select" ? selectState : () => {}}>
+            <div className={isLoading ? "enter-btn" : (props.sceneState === "empty" ? "enter-btn enter-btn-animate" : "enter-btn enter-btn-animate-out")} onClick = {!hasEntered ? enter : () => {}}>
                 <div className='enter-btn-txt'> Enter </div>
             </div>
 
