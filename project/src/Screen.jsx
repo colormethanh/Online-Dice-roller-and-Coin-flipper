@@ -18,7 +18,6 @@ function Credits({state}) {
                     and decided to base my project on learning those skills. Those skills were THREE.JS, GSAP, and React.       
                 </p>
 
-
                 <h3> What will your software do? What features will it have? How will it be executed? </h3>
                 <p>
                     Ironic enough my sofware is a simple program that can help someone make a decision. What Do I mean by that? Basically, when I'm stuck between two decisions

@@ -1,13 +1,14 @@
 import * as THREE from 'three';
 import * as CANNON from 'https://cdn.skypack.dev/cannon-es';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import Stats from 'three/examples/jsm/libs/stats.module';
 import { createDiceMesh, diceParam } from './cubeInit';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import glb from './assets/models/coin2.glb';
 import gsap from 'gsap'
 import { RectAreaLightHelper } from 'three/addons/helpers/RectAreaLightHelper.js';
 import { RectAreaLightUniformsLib } from 'three/addons/lights/RectAreaLightUniformsLib.js';
+
+// import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+// import Stats from 'three/examples/jsm/libs/stats.module';
 
 export default class scenenInit {
     constructor(canvasId) {
@@ -35,7 +36,6 @@ export default class scenenInit {
             mesh: undefined,
             body: undefined
         };
-
         this.coin = {
             mesh: undefined,
             body: undefined
@@ -61,18 +61,17 @@ export default class scenenInit {
         // RectLights
         this.rectLightW = 8;
         this.rectLightH = 18;
-        this.rectYoffset = Math.abs((this.rectLightH/2) - 7);
+        this.rectYoffset = Math.abs((this.rectLightH / 2) - 7); // used to lower rect to floor without going past it
         this.rectLightRed = undefined;
         this.rectLightGreen = undefined;
         this.rectLightBlue = undefined;
 
-        // Results
+        // Results div
         this.results = document.querySelector('#results');
     }
 
     initialize() {
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x000000); 
         
         //Camera
         this.camera = new THREE.PerspectiveCamera(
@@ -103,12 +102,6 @@ export default class scenenInit {
 
         // Clock
         this.clock = new THREE.Clock();
-        
-        // Helpers
-        // this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        // this.controls.enable = false;
-        // this.stats = Stats();
-        // document.body.appendChild(this.stats.dom);
 
         // Lights
         this.topLight = new THREE.PointLight(this.topLightColor, 0);
@@ -117,22 +110,16 @@ export default class scenenInit {
         this.topLight.shadow.mapSize.width = 2048;
         this.topLight.shadow.mapSize.height = 2048;
         this.scene.add(this.topLight);
-        const pointLightHelper = new THREE.PointLightHelper(this.topLight, 1);
-        this.scene.add(pointLightHelper);
         
         this.directionalLight = new THREE.DirectionalLight( this.topLightColor, 0.1 );
         this.directionalLight.position.set(0, 0, 1)
-        this.scene.add( this.directionalLight );
+        this.scene.add(this.directionalLight);
 
         this.spotLight = new THREE.SpotLight(this.topLightColor);
         this.spotLight.position.set(0, 15, 0);
-        // spotlight angle should grow to .16
         this.spotLight.angle = 0;
         this.spotLight.castShadow = true;
-
-        this.scene.add( this.spotLight );
-        
-
+        this.scene.add(this.spotLight );
         
         // Rectangle Lights
         this.initRectLights();
@@ -140,9 +127,8 @@ export default class scenenInit {
         // Physics
         this.initPysics();
 
-        // Floor
+        // Initialize objects
         this.createFloor();
-
         this.createCoin();
         this.createDice();
         
@@ -150,12 +136,12 @@ export default class scenenInit {
         // GSAP configs
         gsap.config({
             units: {height: '%', width: '%', fontSize: 'rem'}
-          });
+        });
 
-        // if window resizes
-        document.addEventListener('mousemove', (e) => this.onPointerMove(e), {passive:false});
-        document.addEventListener('click', (e) => this.onPointerClick(e), {passive:false});
-        window.addEventListener('resize', () => this.onWindowResize(), {passive:false});
+        // Event listeners
+        document.addEventListener('mousemove', (e) => this.onPointerMove(e));
+        document.addEventListener('click', (e) => this.onPointerClick(e));
+        window.addEventListener('resize', () => this.onWindowResize());
     }
 
     initPysics() {
@@ -176,8 +162,8 @@ export default class scenenInit {
     clearState() {
         this.state = "clear";
         this.resetResults();  
+        
         const tl = gsap.timeline();
-
         tl.to(this.dice.mesh.position, {y: 20, duration: 2, onComplete: () => {
             this.removeDice();
         }})
@@ -194,7 +180,6 @@ export default class scenenInit {
     }
 
     selectState() {
-        console.log("select State initiated");
         this.state = "select";
         this.resetResults();
 
@@ -216,7 +201,8 @@ export default class scenenInit {
         }
         tl.to("#flip-btn", {width: 0, duration: 2}, 1);
         
-        tl.to(this.camera.position, { x:this.cameraX, 
+        tl.to(this.camera.position, { 
+            x:this.cameraX, 
             y: this.cameraY, 
             z: this.cameraZ, 
             duration: 2,
@@ -228,44 +214,46 @@ export default class scenenInit {
     }
 
     selectDice() {
-        console.log("Changing state")
         this.state = "dice";
-        console.log("current state" + this.state)
         this.removeCoin();
         this.resetResults();
+
         this.dice.body.velocity.setZero();
         this.dice.body.angularVelocity.setZero();
         this.dice.body.position = new CANNON.Vec3(0, 20, -5);
         this.dice.mesh.position.copy(this.dice.body.position);
+        
         const tl = gsap.timeline();
-
+        
         if(this.rectLightBlue.intensity < 5) {
             tl.to(this.rectLightBlue, {intensity: 5, duration: 3, ease: "bounce.inOut"}, 0);
             tl.to(this.rectLightRed, {intensity: 5, duration: 3, ease: "bounce.in"}, 1);
             tl.to(this.rectLightGreen, {intensity: 5, duration: 3, ease: "bounce.out"}, 2);
         }
-
         tl.to("#flip-btn", {width: 0, duration: 1}, 1);
         tl.to(this.topLight, {intensity: .2, duration:1});
-        tl.to(this.camera.position, { y: 9.5, 
+        tl.to(this.camera.position, { 
+            y: 9.5, 
             z: 15, 
             duration: 2,
             onUpdate: (camera = this.camera) => {
                 camera.lookAt(this.scene.position);
             }    
         }, (this.rectLightBlue.intensity < 5 ? 3 : 1));
-        tl.to("#flip-btn", {width: 100, duration: 2, onComplete: () => {
-            this.dice.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
-        }}, (this.rectLightBlue.intensity < 5 ? 2 : 3));
-
+        tl.to("#flip-btn", {
+            width: 100, 
+            duration: 2, 
+            onComplete: () => {
+                this.dice.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
+            }
+        }, (this.rectLightBlue.intensity < 5 ? 2 : 3));
     }
 
     selectCoin() {
-        console.log("changing state")
         this.state = "coin";
-        console.log("current state " + this.state)
         this.removeDice();
         this.resetResults();
+
         this.coin.body.velocity.setZero();
         this.coin.body.angularVelocity.setZero();
         this.coin.body.position = new CANNON.Vec3(0, 20, -5);
@@ -279,63 +267,64 @@ export default class scenenInit {
         }
         tl.to("#flip-btn", {width: 0, duration: 1}, 1);
         tl.to(this.topLight, {intensity: .2, duration:1});
-        tl.to(this.camera.position, { y: 9.5, 
+        tl.to(this.camera.position, { 
+            y: 9.5, 
             z: 15, 
             duration: 2,
             onUpdate: (camera = this.camera) => {
                 camera.lookAt(this.scene.position);
             }    
         }, (this.rectLightBlue.intensity < 5 ? 3 : 1));
-        tl.to("#flip-btn", {width: 100, duration: 2, onComplete: () => {
-            this.coin.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
-        }}, (this.rectLightBlue.intensity < 5 ? 2 : 3));
-
+        tl.to("#flip-btn", {
+            width: 100, 
+            duration: 2, 
+            onComplete: () => {
+                this.coin.body.applyImpulse(new CANNON.Vec3(0, -0.1, 0));
+            }
+        }, (this.rectLightBlue.intensity < 5 ? 2 : 3));
     }
 
     lightDice() {
-        // console.log("lighting dice");
-        
         this.spotLight.target = this.dice.mesh;
         gsap.to(this.spotLight, {angle:.16, duration:1.5, ease: "sine.out"})
     }
 
     lightCoin() {
-        // console.log("lighting coin");
-        
         this.spotLight.target = this.coin.mesh;
         gsap.to(this.spotLight, {angle: .16, duration:1.5, ease: "sine.out"});
     }
 
     lightOff() {
-        // console.log("lighting off");
         gsap.to(this.spotLight, {angle: 0, duration:1.5, ease: "sine.out"});
-        
     }
 
     // Object Creations
     initRectLights() {
         RectAreaLightUniformsLib.init();
 
+        // Red
         const rectLightRed = new THREE.RectAreaLight(0xff0000, 0, this.rectLightW, this.rectLightH);
         this.rectLightRed = rectLightRed;
         this.rectLightRed.position.set(0, this.rectYoffset, -15);
         this.rectLightRed.lookAt(new THREE.Vector3(0, this.rectYoffset, 10));
         this.scene.add(rectLightRed);
-        this.scene.add( new RectAreaLightHelper( rectLightRed ) );
+        this.scene.add(new RectAreaLightHelper( rectLightRed ));
 
+        // Green
         const rectLightGreen = new THREE.RectAreaLight(0x00ff00, 0, this.rectLightW, this.rectLightH);
         this.rectLightGreen = rectLightGreen;
         this.rectLightGreen.position.set(10, this.rectYoffset, -12);
         this.rectLightGreen.lookAt(new THREE.Vector3(0, this.rectYoffset, 10));
         this.scene.add(rectLightGreen);
-        this.scene.add( new RectAreaLightHelper(rectLightGreen));
+        this.scene.add(new RectAreaLightHelper(rectLightGreen));
 
+        // Blue
         const rectLightBlue = new THREE.RectAreaLight(0x0000ff, 0, this.rectLightW, this.rectLightH);
         this.rectLightBlue = rectLightBlue;
         this.rectLightBlue.position.set(-10, this.rectYoffset, -12);
         this.rectLightBlue.lookAt(new THREE.Vector3(0, this.rectYoffset, 10));
         this.scene.add(rectLightBlue);
-        this.scene.add( new RectAreaLightHelper(rectLightBlue));
+        this.scene.add(new RectAreaLightHelper(rectLightBlue));
     }
 
     createFloor() {
@@ -390,7 +379,6 @@ export default class scenenInit {
                     child.material.color.set(0xfbcb08);
                     child.material.metalness = 0;
                     child.material.roughness = 0.2;
-                    child.material.envMapIntensity = 0.0;
                     child.userData = {shape: 'coin'}
                     this.sceneObjs.push(child);
                 };
@@ -412,7 +400,6 @@ export default class scenenInit {
             this.coin.body = body;
             
             this.addCoinEvents();
-
         });
     }
 
@@ -465,7 +452,6 @@ export default class scenenInit {
             this.coin.body.allowSleep = false;
             const euler = new CANNON.Vec3();
             e.target.quaternion.toEuler(euler);
-            // console.log("coin event");
 
             const eps = .1;
             
@@ -563,14 +549,14 @@ export default class scenenInit {
     }
 
     cameraDown() {
-        gsap.to(this.camera.position, { x:this.cameraX, 
+        gsap.to(this.camera.position, { x: this.cameraX, 
                                         y: this.cameraY, 
-                                        z:this.cameraZ, 
+                                        z: this.cameraZ, 
                                         duration: 2,
                                         onUpdate: (camera = this.camera) =>{
                                             camera.lookAt(this.scene.position);
                                         }
-                                    })
+                                    });
     }
 
     animate() {
@@ -605,11 +591,9 @@ export default class scenenInit {
 
         window.requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
-        // this.stats.update();
-        // this.controls.update();
     }
 
-    // Misc.
+    // Event listener functions
     onWindowResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
@@ -626,7 +610,6 @@ export default class scenenInit {
         if (intersects.length > 0 && this.state === 'select') {
             this.intersected = intersects[0].object;
             const shape = this.intersected.userData.shape;
-            // console.log(this.intersected.userData.shape);
 
             document.body.style.cursor = 'pointer';
             
@@ -640,18 +623,13 @@ export default class scenenInit {
             
         } else {
             this.intersected = null;
-            // console.log("not intersected");
             this.lightOff();
             document.body.style.cursor = 'default';
-        }
+        };
     }
 
     onPointerClick(e) {
-        console.log("Checking state")
-        console.log(this.state)
         if (this.state === "select") {
-            console.log("conditional passed state = " + this.state)
-        
             this.pointer.x = ( e.clientX / window.innerWidth ) * 2 - 1;
             this.pointer.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
             this.raycaster.setFromCamera(this.pointer, this.camera);
@@ -659,25 +637,18 @@ export default class scenenInit {
             const intersects = this.raycaster.intersectObjects(this.sceneObjs, false);
 
             if (intersects.length > 0) {
-                
                 this.intersected = intersects[0].object;
                 const shape = this.intersected.userData.shape;
-                // console.log("clicked on " + this.intersected.userData.shape);
 
                 if (shape === "dice") {
-                    console.log('selecting Dice');
                     this.selectDice();
                 } else if (shape === "coin") {
-                    console.log('selecting Coin');
                     this.selectCoin();
                 } else {
-                    console.log("No selection")
                     return;
                 }
             } 
         }
-
-        return;
     }
 }
 

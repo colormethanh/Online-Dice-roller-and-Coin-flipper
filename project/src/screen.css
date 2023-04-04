@@ -28,7 +28,6 @@
 .enter {
     overflow: hidden;
     grid-area: 4/4/6/8;
-    /* border: 2px solid red; */
     position: relative;
 }
 
@@ -80,7 +79,6 @@
 }
 
 .enter-btn-animate-out {
-    /* animation: name duration timing-function delay iteration-count direction fill-mode; */
     animation: enter-btn-out 1s linear;
     animation-fill-mode: forwards;
 }
@@ -165,7 +163,8 @@
     border: dashed;
     border-color: red;
 }
-  /* grid-area: <name> | <row-start> / <column-start> / <row-end> / <column-end>; */
+
+
 .center-item {
     grid-area: 3/4/5/8;
     position: relative;
@@ -181,12 +180,9 @@
     font-size: 3rem;
     justify-self: center;
     align-self: center;
-    /* padding-left: 1rem;
-    padding-right: 1rem; */
 }
 
-.button-container,
-.button-container:after {
+.button-container, .button-container:after {
     position: relative;
     text-align: center;
     color: rgb(0, 0, 0, 0);
@@ -384,8 +380,7 @@
     }
 }
   
-.glitched:before,
-.glitched:after {
+.glitched:before, .glitched:after {
     content: attr(title);
     position: absolute;
     left: 0;

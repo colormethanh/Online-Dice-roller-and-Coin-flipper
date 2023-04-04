@@ -1,13 +1,18 @@
 @import url("https://fonts.googleapis.com/css?family=Fira+Mono:400");
 
 body {
-  margin: 0;
-  overflow: hidden;
-  font-family: "Fira Mono", sans-serif;
+    margin: 0;
+    overflow: hidden;
+    font-family: "Fira Mono", sans-serif;
+    min-height: 100%;
 }
 
 .content {
     width: 60%;
     margin-left: auto;
     margin-top: auto;
+}
+
+a {
+    color: white;
 }
