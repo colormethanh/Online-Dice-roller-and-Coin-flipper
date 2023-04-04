@@ -1,6 +1,12 @@
 # Online Dice Roller and Coin Flipper
 ## Video URL: 
 
+## How to run
+1. cd into project
+2. run $npm install
+3. run $npm run dev 
+
+
 ## What is your project?
 The online dice and coin roller is a application make with React and Three.js. The main purpose of the app is to practice React and learn three.js. The usage of the app is to provide and online platform to roll a dice and flip a coin that responds with realistic physics. It also will display on the screen the results of flip or roll. 
 
