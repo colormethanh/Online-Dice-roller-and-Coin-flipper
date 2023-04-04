@@ -32,8 +32,8 @@ My project is seperated into two main ***"components"*** the **Canvas** and the 
 ### projects/src/lib/cubeInit.js
 >This is code for constructing the 6 sided dice. 
 
-### projects/src/scree.css
->Contains the majority of the css and keyframs for my project
+### projects/src/screen.css
+>Contains the majority of the css and keyframes for my project.
 
 ### Technologies used
 > React, Three.js, Cannon-es, GSAP. 
