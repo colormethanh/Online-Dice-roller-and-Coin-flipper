@@ -2,7 +2,7 @@
 ## Video URL: https://youtu.be/p-v-8YE0iVs
 
 ## How to run
-1. cd into project
+1. cd into "project"
 2. run "npm install"
 3. run "npm run dev" 
 
