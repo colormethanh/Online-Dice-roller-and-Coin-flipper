@@ -3,8 +3,8 @@
 
 ## How to run
 1. cd into project
-2. run $npm install
-3. run $npm run dev 
+2. run "npm install"
+3. run "npm run dev" 
 
 
 ## What is your project?
