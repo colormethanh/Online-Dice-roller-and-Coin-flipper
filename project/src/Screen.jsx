@@ -174,6 +174,7 @@ export default function Screen(props) {
                 <div className='enter-btn-txt'> Enter </div>
             </div>
 
+            <div className={isLoading? "title opacity-zero" : (props.sceneState == "clear" ? "title opacity-zero" : "title")}> Online Dice Roller and Coin Flipper </div>
 
             <div className={isLoading? "hamburg opacity-zero" : "hamburg"} onClick={handleClick}>
                 <FontAwesomeIcon

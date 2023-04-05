@@ -1,5 +1,5 @@
 # Online Dice Roller and Coin Flipper
-## Video URL: 
+## Video URL: https://youtu.be/p-v-8YE0iVs
 
 ## How to run
 1. cd into project
@@ -17,7 +17,7 @@ Prior to starting the project, I had watched a youtube video that featured many 
 As with many programming projects I faced many problems along the way. Some technical and some mental. 
 
 ### technical Issue:
-In terms of technical issues the biggest one I faced was managing the states of my project. The states were "empty", "select", "dice", and "coin". Each state dictates a plethora of things both in the realm of html/css as well as the three.js canvas. Such things include what is to be shown and what is to be hidden as well as how clicks and hovers should respond is all dictated by the "state". Accurately and effectivly orchestrating those responses required a lot and forced me to get quite intimate with my code (i.e, understanding it's ins and outs completely). Being forces to understand my code so intimatly helped me think about and understand my code so much more than I had before.      
+In terms of technical issues the biggest one I faced was managing the states of my project. The states were "empty", "clear", "select", "dice", and "coin". Each state dictates a plethora of things both in the realm of html/css as well as the three.js canvas. Such things include what is to be shown and what is to be hidden as well as how clicks and hovers should respond is all dictated by the "state". Accurately and effectivly orchestrating those responses required a lot and forced me to get quite intimate with my code (i.e, understanding it's ins and outs completely). Being forces to understand my code so intimatly helped me think about and understand my code so much more than I had before.      
 
 ### mindset struggles:
 As a beginner I always question my skills and decisions. The sight of my project everytime I opened it filled me with a little bit of doubt. I would question how long everything is taking, how the end product will look, will I even be able to finish, etc. For about 80% of my time working on the project, it did not look promising. But, I just kept my head down and trusted the process and eventually it worked out in the end. I often said those words to myself "trust in the process" and as an independent programming student the *"process"* is much **bigger** than just this one project rather it's my journey as a whole and sometime it scares me...but other times, especially after finishing a project, it excites me!
