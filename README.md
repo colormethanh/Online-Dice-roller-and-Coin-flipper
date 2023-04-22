@@ -1,5 +1,6 @@
 # Online Dice Roller and Coin Flipper
 ## Video URL: https://youtu.be/p-v-8YE0iVs
+## Link: https://online-dice-roller-and-coin-flipper.vercel.app/
 
 ## How to run
 1. cd into "project"
